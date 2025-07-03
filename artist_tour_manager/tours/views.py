@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from .serializers import ArtistSerializer, VenueSerializer, TourDateSerializer, RegisterSerializer
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
+from .permissions import IsAdminOrReadOnly
 
 class ArtistViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()
@@ -38,7 +39,7 @@ class TourDateViewSet(viewsets.ModelViewSet):
     queryset = TourDate.objects.all()
     serializer_class = TourDateSerializer
     
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
     
     #filters
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]

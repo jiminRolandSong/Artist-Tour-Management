@@ -22,3 +22,34 @@ class TourDateSerializer(serializers.ModelSerializer):
     class Meta:
         model = TourDate
         fields = ['id', 'artist', 'artist_id', 'venue', 'venue_id', 'date', 'ticket_price']
+    
+    # Automatically called whenever someone creates ot updates a TourDate by DRF
+    # Avoid sameday booking    
+    def validate(self, data):
+        artist = data.get('artist')
+        date = data.get('date')
+        
+        #Excluding current instance
+        tourdate_id = self.instance.id if self.instance else None
+        
+        if TourDate.objects.filter(artist=artist, date=date).exclude(id = tourdate_id).exists():
+            raise serializers.ValidationError("This artist already has a show on this date")
+        
+        return data
+
+from django.contrib.auth.models import User
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only = True, required=True)
+    
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
+        
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username = validated_data['username'],
+            email = validated_data['email'],
+            password=validated_data['password']
+        )
+        return user

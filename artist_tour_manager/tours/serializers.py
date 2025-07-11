@@ -2,6 +2,10 @@
 
 from rest_framework import serializers
 from .models import Artist, Venue, TourDate
+# Serializers are used to convert complex data types, such as querysets and model instances, into native Python datatypes that can then be easily rendered into JSON or XML.
+# They also handle deserialization, allowing parsed data to be converted back into complex types, after validating the incoming data.
+# This allows us to create, read, update, and delete data in a consistent way.
+# Serializers are similar to Django Forms, but they are specifically designed for working with complex data types and can handle nested relationships.
 
 class ArtistSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,8 +18,17 @@ class VenueSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class TourDateSerializer(serializers.ModelSerializer):
+    # Nested serializers to include related Artist and Venue data in the TourDate response
+    # This allows us to get the full details of the artist and venue without needing to make additional queries
+    # The 'read_only' attribute means these fields are for display purposes only and cannot be used to create or update the TourDate instance directly
+    # If you want to create or update a TourDate instance, you will need to use the artist_id and venue_id fields instead
+    # This is useful for API responses where you want to show the full details of the artist and venue
+    
     artist = ArtistSerializer(read_only=True)
     venue = VenueSerializer(read_only=True)
+    
+    # These fields are used to create or update the TourDate instance
+    # They are write_only because we don't want to expose the IDs in the API response
     artist_id = serializers.PrimaryKeyRelatedField(queryset=Artist.objects.all(), write_only=True, source='artist')
     venue_id = serializers.PrimaryKeyRelatedField(queryset=Venue.objects.all(), write_only=True, source='venue')
 

@@ -1,8 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
-
+# This file defines the models for the Artist Tour Management application.
 class Artist(models.Model):
     name = models.CharField(max_length=100)
     genre = models.CharField(max_length=100)

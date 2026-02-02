@@ -104,6 +104,48 @@ Run tests with:
 python manage.py test
 ```
 
+### Test Coverage Overview
+
+- **API access & ownership:** unauthenticated access denied, owners can CRUD, non-owners blocked.
+- **Business rules:** no same-day booking for same artist, past dates rejected.
+- **Registration:** public registration, password hashing, duplicate username rejected.
+- **Export & filters:** CSV export auth + ownership, filter/search/order endpoints.
+- **Constraints:** unique artist name, unique venue per city, duplicate dates rejected at DB level.
+- **Optimization flow:** fan demand CRUD, optimize returns metrics, confirm schedule permissions + conflicts.
+
+## AI Optimization Logic (Current)
+
+**Inputs (Plan):**
+- `artist`, `name`, `start_date`, `end_date`
+- `venue_ids` (selected venues to visit)
+- `start_city` (and optional `start_venue_id`)
+- `targets` (min revenue/ROI/attendance)
+- `constraints` (min gap days, travel speed)
+
+**Process:**
+1. Create a **Tour Plan** for the selected tour group and venues.
+2. Run optimization to produce an **optimized route** and a **schedule**.
+3. Review/edit the schedule in the UI.
+4. Confirm the run to create **Tour Dates**, with conflict strategy (`skip`/`overwrite`).
+
+**Outputs (Run Result):**
+- `optimized_route` (venue order)
+- `schedule` (venue_id + date list)
+- `metrics` (distance reduction %, estimated ROI)
+- `warnings` (constraint violations or issues)
+
+### Algorithm Notes
+
+- **Distance model:** great-circle distance (Haversine) between venue lat/lon.
+- **Baseline route:** nearest-neighbor route from `start_venue_id` (or first venue if none).
+- **Route improvement:** 2-opt local search to reduce total distance.
+- **Revenue estimation:** fan demand uses `expected_ticket_price` and `fan_count * engagement_score`.
+- **AI adjustment (optional):** OpenAI can adjust per-venue revenue via multipliers (0.5–1.5) based on fan density + geographic clustering.
+- **Scoring:** weighted revenue minus weighted distance, plus operating + travel cost accounting.
+- **Scheduling:** builds dates by applying min gap days and travel time (distance / speed).
+- **Region filters:** optional city/country/continent filtering before optimization (excluded venues reported).
+- **Constraints enforced:** start venue lock, minimum gap days, travel speed limit (km/day).
+
 ## Notes
 
 - Tour plan names must be unique per artist.

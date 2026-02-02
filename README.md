@@ -10,6 +10,7 @@ A Django REST API for managing artists, venues, and tour dates. Includes user re
 - Permissions: Only owners can modify their tours
 - Filtering, searching, and ordering for tours
 - Export user tours to CSV
+- AI-assisted tour route optimization with ROI estimates
 
 ## Setup
 
@@ -29,6 +30,8 @@ A Django REST API for managing artists, venues, and tour dates. Includes user re
    DB_PASSWORD=your_db_password
    DB_HOST=localhost
    DB_PORT=5432
+   OPENAI_API_KEY=your_openai_api_key
+   OPENAI_MODEL=gpt-4.1-mini
    ```
 
 4. **Apply migrations**
@@ -50,6 +53,7 @@ A Django REST API for managing artists, venues, and tour dates. Includes user re
 - **Token:** `/api/token/`
 - **Token Refresh:** `/api/token/refresh/`
 - **Export Tours (CSV):** `/api/export/tours/?type=csv`
+- **Optimize Tour Route:** `/api/optimize/`
 
 ## Filtering & Searching
 

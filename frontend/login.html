@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Artist Tour Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="login-box">
+      <h2>Welcome back</h2>
+      <p>Sign in to manage your artists and tours.</p>
+      <form>
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input id="username" type="text" placeholder="your_username" />
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input id="password" type="password" placeholder="????????" />
+        </div>
+        <p class="login-error" style="color: #c0392b; min-height: 20px;"></p>
+        <button class="btn btn-primary" type="submit">Log in</button>
+      </form>
+      <p style="margin-top: 16px; color: #4a5363;">Demo accounts: jimin_song / demo1234!</p>
+      <a class="btn btn-secondary" href="signup.html" style="margin-top: 12px;">Create an owner account</a>
+      <a class="btn btn-secondary" href="index.html" style="margin-top: 12px;">Back to landing</a>
+    </div>
+    <script src="app.js"></script>
+    <script>
+      window.AppAuth.bindLoginForm();
+    </script>
+  </body>
+</html>

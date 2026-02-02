@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tour Groups | Artist Tour Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <nav class="nav">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <span>Tour Groups</span>
+        </div>
+        <div class="nav-links">
+          <a href="home.html">Home</a>
+          <button id="logout" class="btn btn-secondary" style="padding: 8px 14px;">Logout</button>
+        </div>
+      </nav>
+
+      <section class="home-layout">
+        <aside class="sidebar">
+          <a href="home.html">Home</a>
+          <a href="artists.html">My Artists</a>
+          <a href="tour-groups.html">Tour Groups</a>
+          <a href="tour-dates.html">Tour Dates</a>
+          <a href="optimize.html">AI Optimize</a>
+          <a href="reports.html">Reports</a>
+        </aside>
+
+        <main class="content-grid">
+          <div class="card fade-in">
+            <h3>Tour Groups</h3>
+            <ul id="tour-group-list" class="list"></ul>
+            <form id="tour-group-form" style="margin-top: 16px;">
+              <div class="input-group">
+                <label for="tour-group-name">Tour name</label>
+                <input id="tour-group-name" type="text" placeholder="Summer Tour 2026" />
+              </div>
+              <div class="input-group">
+                <label for="tour-group-artist">Artist</label>
+                <select id="tour-group-artist" style="padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.12);"></select>
+              </div>
+              <div class="input-group">
+                <label for="tour-group-start">Start date</label>
+                <input id="tour-group-start" type="date" />
+              </div>
+              <div class="input-group">
+                <label for="tour-group-end">End date</label>
+                <input id="tour-group-end" type="date" />
+              </div>
+              <div class="input-group">
+                <label for="tour-group-desc">Description</label>
+                <input id="tour-group-desc" type="text" placeholder="Domestic summer tour" />
+              </div>
+              <p id="tour-group-error" style="color: #c0392b; min-height: 20px;"></p>
+              <button class="btn btn-primary" type="submit">Create tour group</button>
+            </form>
+          </div>
+
+          <div class="card fade-in">
+            <h3>Assign Venues to Tour Group</h3>
+            <form id="tour-group-venues-form" style="margin-top: 12px;">
+              <div class="input-group">
+                <label for="venue-tour-group">Tour group</label>
+                <select id="venue-tour-group" style="padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.12);"></select>
+              </div>
+              <div class="input-group">
+                <label>Venues</label>
+                <div id="venue-pick-list" class="list"></div>
+              </div>
+              <p id="venue-assign-error" style="color: #c0392b; min-height: 20px;"></p>
+              <button class="btn btn-primary" type="submit">Save venue list</button>
+            </form>
+          </div>
+        </main>
+      </section>
+    </div>
+    <script src="app.js"></script>
+    <script>
+      window.AppAuth.requireAuth();
+      window.AppAuth.bindLogout();
+      window.AppAuth.loadTourGroupsPage();
+      window.AppAuth.bindTourGroupForm();
+      window.AppAuth.bindTourGroupVenueForm();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,41 @@
+{
+    "artist_id":  3,
+    "baseline_route":  [
+                           3,
+                           4,
+                           5,
+                           6
+                       ],
+    "optimized_route":  [
+                            3,
+                            4,
+                            6,
+                            5
+                        ],
+    "metrics":  {
+                    "baseline_distance_km":  6160.357338458392,
+                    "optimized_distance_km":  4872.474009183775,
+                    "distance_reduction_pct":  20.91,
+                    "estimated_revenue":  6231500.0,
+                    "estimated_total_cost":  199744.94801836755,
+                    "estimated_roi":  30.1973
+                },
+    "schedule":  [
+                     {
+                         "venue_id":  3,
+                         "date":  "2026-02-15"
+                     },
+                     {
+                         "venue_id":  4,
+                         "date":  "2026-02-18"
+                     },
+                     {
+                         "venue_id":  6,
+                         "date":  "2026-02-22"
+                     },
+                     {
+                         "venue_id":  5,
+                         "date":  "2026-02-27"
+                     }
+                 ]
+}

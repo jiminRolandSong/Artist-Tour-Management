@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tour Dates | Artist Tour Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <nav class="nav">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <span>Tour Dates</span>
+        </div>
+        <div class="nav-links">
+          <a href="home.html">Home</a>
+          <button id="logout" class="btn btn-secondary" style="padding: 8px 14px;">Logout</button>
+        </div>
+      </nav>
+
+      <section class="home-layout">
+        <aside class="sidebar">
+          <a href="home.html">Home</a>
+          <a href="artists.html">My Artists</a>
+          <a href="tour-groups.html">Tour Groups</a>
+          <a href="tour-dates.html">Tour Dates</a>
+          <a href="optimize.html">AI Optimize</a>
+          <a href="reports.html">Reports</a>
+        </aside>
+
+        <main class="content-grid">
+          <div id="tour-dates" class="card fade-in">
+            <h3>Tour Dates</h3>
+            <h4 style="margin: 12px 0 8px;">Upcoming dates</h4>
+            <ul id="tour-list" class="list"></ul>
+            <h4 style="margin: 18px 0 8px;">Past dates</h4>
+            <ul id="past-tour-list" class="list muted"></ul>
+            <div style="display:flex; align-items:center; gap:10px; margin: 18px 0 8px;">
+              <h4 style="margin:0;">Archived dates</h4>
+              <button id="toggle-archived" class="btn btn-secondary" type="button">Show</button>
+            </div>
+            <ul id="archived-tour-list" class="list muted" style="display:none;"></ul>
+          </div>
+
+          <div class="card fade-in">
+            <h3>Create Tour Date</h3>
+            <form id="tour-form" style="margin-top: 12px;">
+              <div class="input-group">
+                <label for="tour-artist">Artist</label>
+                <select id="tour-artist" style="padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.12);"></select>
+              </div>
+              <div class="input-group">
+                <label for="tour-group">Tour group</label>
+                <select id="tour-group" style="padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.12);"></select>
+              </div>
+              <div class="input-group">
+                <label for="tour-venue">Venue</label>
+                <select id="tour-venue" style="padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.12);"></select>
+              </div>
+              <div class="input-group">
+                <label for="tour-date">Date</label>
+                <input id="tour-date" type="date" />
+              </div>
+              <div class="input-group">
+                <label for="tour-price">Ticket price</label>
+                <input id="tour-price" type="number" step="0.01" placeholder="150.00" />
+              </div>
+              <p id="tour-error" style="color: #c0392b; min-height: 20px;"></p>
+              <p id="tour-success" style="color: #1f7a63; min-height: 20px;"></p>
+              <button class="btn btn-primary" type="submit">Create tour date</button>
+            </form>
+          </div>
+        </main>
+      </section>
+    </div>
+    <script src="app.js"></script>
+    <script>
+      window.AppAuth.requireAuth();
+      window.AppAuth.bindLogout();
+      window.AppAuth.loadTourDatesPage();
+      window.AppAuth.bindTourForm();
+      window.AppAuth.bindTourDateActions();
+    </script>
+  </body>
+</html>

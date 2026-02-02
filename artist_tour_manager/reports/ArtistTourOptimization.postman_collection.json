@@ -1,0 +1,658 @@
+{
+    "variable":  [
+                     {
+                         "key":  "base_url",
+                         "value":  "http://127.0.0.1:8000"
+                     },
+                     {
+                         "key":  "access_token",
+                         "value":  ""
+                     },
+                     {
+                         "key":  "refresh_token",
+                         "value":  ""
+                     },
+                     {
+                         "key":  "username",
+                         "value":  "jimin_song"
+                     },
+                     {
+                         "key":  "password",
+                         "value":  "demo1234!"
+                     },
+                     {
+                         "key":  "email",
+                         "value":  "jimin.song@example.com"
+                     },
+                     {
+                         "key":  "artist_id",
+                         "value":  "1"
+                     },
+                     {
+                         "key":  "venue_id",
+                         "value":  "1"
+                     },
+                     {
+                         "key":  "venue_id_2",
+                         "value":  "2"
+                     },
+                     {
+                         "key":  "venue_id_3",
+                         "value":  "3"
+                     },
+                     {
+                         "key":  "venue_id_4",
+                         "value":  "4"
+                     },
+                     {
+                         "key":  "tour_group_id",
+                         "value":  "1"
+                     },
+                     {
+                         "key":  "plan_id",
+                         "value":  "1"
+                     },
+                     {
+                         "key":  "run_id",
+                         "value":  "1"
+                     },
+                     {
+                         "key":  "start_city",
+                         "value":  "New York"
+                     }
+                 ],
+    "info":  {
+                 "name":  "Artist Tour Management API",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+             },
+    "item":  [
+                 {
+                     "name":  "Register",
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n  \"username\": \"{{username}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/register/",
+                                                 "path":  [
+                                                              "api",
+                                                              "register",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/token/",
+                                                 "path":  [
+                                                              "api",
+                                                              "token",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Get Token",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "const data = pm.response.json();",
+                                                                   "if (data.access) {",
+                                                                   "  pm.collectionVariables.set(\"access_token\", data.access);",
+                                                                   "  if (pm.environment) {",
+                                                                   "    pm.environment.set(\"access_token\", data.access);",
+                                                                   "  }",
+                                                                   "}",
+                                                                   "if (data.refresh) {",
+                                                                   "  pm.collectionVariables.set(\"refresh_token\", data.refresh);",
+                                                                   "  if (pm.environment) {",
+                                                                   "    pm.environment.set(\"refresh_token\", data.refresh);",
+                                                                   "  }",
+                                                                   "}"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ]
+                 },
+                 {
+                     "name":  "Token Refresh",
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n  \"refresh\": \"{{refresh_token}}\"\n}",
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/token/refresh/",
+                                                 "path":  [
+                                                              "api",
+                                                              "token",
+                                                              "refresh",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "Create Artist",
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n  \"name\": \"Starlight\",\n  \"genre\": \"Pop\"\n}",
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/artists/",
+                                                 "path":  [
+                                                              "api",
+                                                              "artists",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "List Artists",
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/artists/",
+                                                 "path":  [
+                                                              "api",
+                                                              "artists",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "Create Venue",
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n  \"name\": \"Madison Square Garden\",\n  \"city\": \"New York, USA\",\n  \"capacity\": 20000,\n  \"latitude\": 40.7505,\n  \"longitude\": -73.9934,\n  \"operating_cost\": \"50000.00\"\n}",
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/venues/",
+                                                 "path":  [
+                                                              "api",
+                                                              "venues",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "List Venues",
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/venues/",
+                                                 "path":  [
+                                                              "api",
+                                                              "venues",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "Create Tour Group",
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n  \"name\": \"Summer Tour 2026\",\n  \"artist\": {{artist_id}},\n  \"start_date\": \"2026-06-01\",\n  \"end_date\": \"2026-07-20\",\n  \"description\": \"Domestic summer tour\"\n}",
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/tour-groups/",
+                                                 "path":  [
+                                                              "api",
+                                                              "tour-groups",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "List Tour Groups",
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/tour-groups/",
+                                                 "path":  [
+                                                              "api",
+                                                              "tour-groups",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "Create Tour Date",
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n  \"tour_id\": {{tour_group_id}},\n  \"artist_id\": {{artist_id}},\n  \"venue_id\": {{venue_id}},\n  \"date\": \"2026-06-10\",\n  \"ticket_price\": \"150.00\"\n}",
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/tours/",
+                                                 "path":  [
+                                                              "api",
+                                                              "tours",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "List Tour Dates",
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/tours/",
+                                                 "path":  [
+                                                              "api",
+                                                              "tours",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "Export Tours (CSV)",
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "query":  [
+                                                               {
+                                                                   "key":  "type",
+                                                                   "value":  "csv"
+                                                               }
+                                                           ],
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/export/tours/?type=csv",
+                                                 "path":  [
+                                                              "api",
+                                                              "export",
+                                                              "tours",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "Fan Demand Create",
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n  \"artist\": {{artist_id}},\n  \"venue\": {{venue_id}},\n  \"fan_count\": 120000,\n  \"engagement_score\": \"0.12\",\n  \"expected_ticket_price\": \"150.00\"\n}",
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/fan-demand/",
+                                                 "path":  [
+                                                              "api",
+                                                              "fan-demand",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "Fan Demand List",
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/fan-demand/",
+                                                 "path":  [
+                                                              "api",
+                                                              "fan-demand",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "Create Plan",
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n  \"name\": \"Summer Plan\",\n  \"artist\": {{artist_id}},\n  \"start_date\": \"2026-06-01\",\n  \"end_date\": \"2026-07-20\",\n  \"start_city\": \"New York\",\n  \"venue_ids\": [{{venue_id}}, {{venue_id_2}}, {{venue_id_3}}, {{venue_id_4}}],\n  \"region_filters\": {\"countries\": [\"USA\"]},\n  \"targets\": {\"min_revenue\": 2000000, \"min_roi\": 1.5, \"min_attendance\": 50000},\n  \"constraints\": {\"min_gap_days\": 1, \"travel_speed_km_per_day\": 500}\n}",
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/plans/",
+                                                 "path":  [
+                                                              "api",
+                                                              "plans",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "List Plans",
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/plans/",
+                                                 "path":  [
+                                                              "api",
+                                                              "plans",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "Run Plan",
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{}",
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/plans/{{plan_id}}/run/",
+                                                 "path":  [
+                                                              "api",
+                                                              "plans",
+                                                              "{{plan_id}}",
+                                                              "run",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "Confirm Run",
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n  \"tour_id\": {{tour_group_id}},\n  \"conflict_strategy\": \"overwrite\"\n}",
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/runs/{{run_id}}/confirm/",
+                                                 "path":  [
+                                                              "api",
+                                                              "runs",
+                                                              "{{run_id}}",
+                                                              "confirm",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "Optimize Tour (AI)",
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n  \"artist_id\": {{artist_id}},\n  \"venue_ids\": [{{venue_id}}, {{venue_id_2}}, {{venue_id_3}}, {{venue_id_4}}],\n  \"start_city\": \"{{start_city}}\",\n  \"use_ai\": true,\n  \"cost_per_km\": \"2.00\",\n  \"distance_weight\": \"1.0\",\n  \"revenue_weight\": \"1.0\",\n  \"start_date\": \"2026-02-15\",\n  \"min_gap_days\": 1,\n  \"travel_speed_km_per_day\": \"500\"\n}",
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/optimize/",
+                                                 "path":  [
+                                                              "api",
+                                                              "optimize",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 },
+                 {
+                     "name":  "Confirm Optimized Schedule (Legacy)",
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n  \"artist_id\": {{artist_id}},\n  \"tour_id\": {{tour_group_id}},\n  \"schedule\": [\n    {\"venue_id\": {{venue_id}}, \"date\": \"2026-02-15\"},\n    {\"venue_id\": {{venue_id_2}}, \"date\": \"2026-02-18\"}\n  ]\n}",
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "{{base_url}}"
+                                                          ],
+                                                 "raw":  "{{base_url}}/api/optimize/confirm/",
+                                                 "path":  [
+                                                              "api",
+                                                              "optimize",
+                                                              "confirm",
+                                                              ""
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{access_token}}"
+                                                    }
+                                                ]
+                                 }
+                 }
+             ]
+}

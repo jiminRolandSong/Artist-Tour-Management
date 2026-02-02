@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Artists | Artist Tour Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <nav class="nav">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <span>My Artists</span>
+        </div>
+        <div class="nav-links">
+          <a href="home.html">Home</a>
+          <button id="logout" class="btn btn-secondary" style="padding: 8px 14px;">Logout</button>
+        </div>
+      </nav>
+
+      <section class="home-layout">
+        <aside class="sidebar">
+          <a href="home.html">Home</a>
+          <a href="artists.html">My Artists</a>
+          <a href="tour-groups.html">Tour Groups</a>
+          <a href="tour-dates.html">Tour Dates</a>
+          <a href="optimize.html">AI Optimize</a>
+          <a href="reports.html">Reports</a>
+        </aside>
+
+        <main class="content-grid">
+          <div class="card fade-in">
+            <h3>Artist Roster</h3>
+            <ul id="artist-list" class="list"></ul>
+            <form id="artist-form" style="margin-top: 16px;">
+              <div class="input-group">
+                <label for="artist-name">Artist name</label>
+                <input id="artist-name" type="text" placeholder="Artist name" />
+              </div>
+              <div class="input-group">
+                <label for="artist-genre">Genre</label>
+                <input id="artist-genre" type="text" placeholder="Genre" />
+              </div>
+              <p id="artist-error" style="color: #c0392b; min-height: 20px;"></p>
+              <button class="btn btn-primary" type="submit">Add artist</button>
+            </form>
+          </div>
+
+          <div class="card fade-in">
+            <h3>Artist Details</h3>
+            <div id="artist-details" class="muted">Select an artist to view details.</div>
+            <h4 style="margin: 18px 0 8px;">Tour Groups</h4>
+            <ul id="artist-groups" class="list"></ul>
+            <h4 style="margin: 18px 0 8px;">Tour Dates</h4>
+            <ul id="artist-tours" class="list"></ul>
+          </div>
+        </main>
+      </section>
+    </div>
+    <script src="app.js"></script>
+    <script>
+      window.AppAuth.requireAuth();
+      window.AppAuth.bindLogout();
+      window.AppAuth.loadArtistsPage();
+      window.AppAuth.bindArtistForm();
+      window.AppAuth.bindArtistActions();
+    </script>
+  </body>
+</html>

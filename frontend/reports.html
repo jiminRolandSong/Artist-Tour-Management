@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports | Artist Tour Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <nav class="nav">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <span>Reports</span>
+        </div>
+        <div class="nav-links">
+          <a href="home.html">Home</a>
+          <button id="logout" class="btn btn-secondary" style="padding: 8px 14px;">Logout</button>
+        </div>
+      </nav>
+
+      <section class="home-layout">
+        <aside class="sidebar">
+          <a href="home.html">Home</a>
+          <a href="artists.html">My Artists</a>
+          <a href="tour-groups.html">Tour Groups</a>
+          <a href="tour-dates.html">Tour Dates</a>
+          <a href="optimize.html">AI Optimize</a>
+          <a href="reports.html">Reports</a>
+        </aside>
+
+        <main class="content-grid">
+          <div class="card fade-in">
+            <h3>Reporting Center</h3>
+            <p class="muted">Export CSVs, review ROI summaries, and share tour analytics.</p>
+          </div>
+        </main>
+      </section>
+    </div>
+    <script src="app.js"></script>
+    <script>
+      window.AppAuth.requireAuth();
+      window.AppAuth.bindLogout();
+    </script>
+  </body>
+</html>

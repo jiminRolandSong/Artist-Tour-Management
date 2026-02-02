@@ -61,7 +61,7 @@ class TourDateViewSet(viewsets.ModelViewSet):
     # DjangoFilterBackend allows filtering by fields defined in filterset_fields
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['artist', 'venue', 'date']
-    ordering_field = ['date', 'ticket_price']
+    ordering_fields = ['date', 'ticket_price']
     ordering = ['date']
     search_fields = ['artist__name', 'venue__name']
     

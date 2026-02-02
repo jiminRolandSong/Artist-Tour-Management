@@ -1,16 +1,17 @@
 # Artist Tour Manager
 
-A Django REST API for managing artists, venues, and tour dates. Includes user registration, JWT authentication, filtering, searching, ordering, and CSV export of user-created tours.
+Full-stack tour management platform for artists and managers. Django REST API + lightweight HTML frontend for managing artists, venues, tour groups, and AI-optimized tour schedules.
 
 ## Features
 
-- Manage Artists, Venues, and Tour Dates
-- User registration endpoint
-- JWT authentication (`/api/token/`)
-- Permissions: Only owners can modify their tours
-- Filtering, searching, and ordering for tours
-- Export user tours to CSV
-- AI-assisted tour route optimization with ROI estimates
+- Owner-based authentication and permissions (JWT)
+- Manage Artists, Venues, Tour Dates, and Tour Groups
+- Tour Groups with assigned venues + start/end dates
+- AI optimization flow (Plan -> Run -> Confirm)
+- Conflict handling when confirming schedules (skip/overwrite)
+- Archive/restore past tour dates
+- CSV export of user-created tours
+- Lightweight frontend (landing, login/signup, home, artists, tour groups, tour dates, AI optimize)
 
 ## Setup
 
@@ -48,12 +49,16 @@ A Django REST API for managing artists, venues, and tour dates. Includes user re
 
 - **Artists:** `/api/artists/`
 - **Venues:** `/api/venues/`
-- **Tours:** `/api/tours/`
+- **Tour Dates:** `/api/tours/`
+- **Tour Groups:** `/api/tour-groups/`
+- **Plans:** `/api/plans/`
+- **Plan Run:** `/api/plans/{id}/run/`
+- **Run Confirm:** `/api/runs/{id}/confirm/`
 - **Register:** `/api/register/`
 - **Token:** `/api/token/`
 - **Token Refresh:** `/api/token/refresh/`
 - **Export Tours (CSV):** `/api/export/tours/?type=csv`
-- **Optimize Tour Route:** `/api/optimize/`
+- **Optimize (Legacy):** `/api/optimize/`
 
 ## Filtering & Searching
 
@@ -65,6 +70,25 @@ A Django REST API for managing artists, venues, and tour dates. Includes user re
   ```
   /api/tours/?search=Queen
   ```
+
+## AI Optimization Workflow
+
+1. Create a Tour Group and assign venues.
+2. Set start/end dates for the Tour Group.
+3. On the AI Optimize page, select the Tour Group and run optimization.
+4. Confirm the schedule into Tour Dates (with conflict strategy).
+
+## Frontend
+
+Serve the frontend files from the `frontend/` folder (any static server works).
+- `frontend/index.html` (landing)
+- `frontend/login.html` / `frontend/signup.html`
+- `frontend/home.html`
+- `frontend/artists.html`
+- `frontend/tour-groups.html`
+- `frontend/tour-dates.html`
+- `frontend/optimize.html`
+- `frontend/reports.html`
 
 ## Export
 
@@ -79,6 +103,11 @@ Run tests with:
 ```sh
 python manage.py test
 ```
+
+## Notes
+
+- Tour plan names must be unique per artist.
+- Plan dates must be in the future and end after start.
 
 ## License
 

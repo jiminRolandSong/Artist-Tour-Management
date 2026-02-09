@@ -8,6 +8,8 @@ Full-stack tour management platform for artists and managers. Django REST API + 
 - Manage Artists, Venues, Tour Dates, and Tour Groups
 - Tour Groups with assigned venues + start/end dates
 - AI optimization flow (Plan -> Run -> Confirm)
+- AI venue selection with rationale (optional, max venues)
+- AI revenue adjustment (optional) + ROI estimation
 - Conflict handling when confirming schedules (skip/overwrite)
 - Archive/restore past tour dates
 - CSV export of user-created tours
@@ -24,7 +26,7 @@ Full-stack tour management platform for artists and managers. Django REST API + 
 
 3. **Configure environment variables**
 
-   Create a `.env` file in the root directory:
+   Create a `.env` file in `artist_tour_manager/.env`:
    ```
    DB_NAME=your_db_name
    DB_USER=your_db_user
@@ -32,8 +34,9 @@ Full-stack tour management platform for artists and managers. Django REST API + 
    DB_HOST=localhost
    DB_PORT=5432
    OPENAI_API_KEY=your_openai_api_key
-   OPENAI_MODEL=gpt-4.1-mini
+   OPENAI_MODEL=gpt-4o-mini
    ```
+   Note: environment variables override `.env` if both are set.
 
 4. **Apply migrations**
    ```sh
@@ -53,6 +56,7 @@ Full-stack tour management platform for artists and managers. Django REST API + 
 - **Tour Groups:** `/api/tour-groups/`
 - **Plans:** `/api/plans/`
 - **Plan Run:** `/api/plans/{id}/run/`
+- **Runs:** `/api/runs/` and `/api/runs/{id}/`
 - **Run Confirm:** `/api/runs/{id}/confirm/`
 - **Register:** `/api/register/`
 - **Token:** `/api/token/`
@@ -77,6 +81,12 @@ Full-stack tour management platform for artists and managers. Django REST API + 
 2. Set start/end dates for the Tour Group.
 3. On the AI Optimize page, select the Tour Group and run optimization.
 4. Confirm the schedule into Tour Dates (with conflict strategy).
+
+## Postman Collection
+
+Import `artist_tour_manager/reports/ArtistTourOptimization.postman_collection.json`.
+It auto-saves `artist_id`, `venue_id`, `tour_group_id`, `plan_id`, and `run_id`, and includes
+AI selection fields (`max_venues`, `use_ai_selection`, `start_venue_id`).
 
 ## Frontend
 
@@ -120,7 +130,7 @@ python manage.py test
 - `venue_ids` (selected venues to visit)
 - `start_city` (and optional `start_venue_id`)
 - `targets` (min revenue/ROI/attendance)
-- `constraints` (min gap days, travel speed)
+- `constraints` (min gap days, travel speed, cost/revenue weights, max venues, AI selection)
 
 **Process:**
 1. Create a **Tour Plan** for the selected tour group and venues.
@@ -131,7 +141,8 @@ python manage.py test
 **Outputs (Run Result):**
 - `optimized_route` (venue order)
 - `schedule` (venue_id + date list)
-- `metrics` (distance reduction %, estimated ROI)
+- `metrics` (distance reduction %, estimated revenue/cost/ROI, expected attendance)
+- `selection_strategy` / `selection_rationale` / `selection_error`
 - `warnings` (constraint violations or issues)
 
 ### Algorithm Notes
@@ -140,7 +151,8 @@ python manage.py test
 - **Baseline route:** nearest-neighbor route from `start_venue_id` (or first venue if none).
 - **Route improvement:** 2-opt local search to reduce total distance.
 - **Revenue estimation:** fan demand uses `expected_ticket_price` and `fan_count * engagement_score`.
-- **AI adjustment (optional):** OpenAI can adjust per-venue revenue via multipliers (0.5–1.5) based on fan density + geographic clustering.
+- **Fallback pricing:** if no expected ticket price, use `venue.default_ticket_price`, then latest tour date price.
+- **AI adjustment (optional):** OpenAI can adjust per-venue revenue via multipliers (0.5-1.5) based on fan density + geographic clustering.
 - **Scoring:** weighted revenue minus weighted distance, plus operating + travel cost accounting.
 - **Scheduling:** builds dates by applying min gap days and travel time (distance / speed).
 - **Region filters:** optional city/country/continent filtering before optimization (excluded venues reported).
@@ -150,6 +162,7 @@ python manage.py test
 
 - Tour plan names must be unique per artist.
 - Plan dates must be in the future and end after start.
+- `start_venue_id` must be omitted or a valid venue ID (null is invalid).
 
 ## License
 

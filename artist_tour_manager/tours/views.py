@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 import datetime
+import random
 from decimal import Decimal
 
 # Create your views here.
@@ -26,7 +27,34 @@ from .optimization import (
     ai_adjust_revenue,
     build_schedule,
     filter_venues_by_region,
+    select_venue_subset,
+    ai_select_venues,
 )
+
+def ensure_fan_demands(artist, venues, fallback_price):
+    existing = {
+        demand.venue_id: demand
+        for demand in FanDemand.objects.filter(artist=artist, venue__in=venues)
+    }
+    created = []
+    for venue in venues:
+        if venue.id in existing:
+            continue
+        base_capacity = venue.capacity or 10000
+        seed = (artist.id or 1) * 100000 + venue.id
+        rng = random.Random(seed)
+        fan_count = int(base_capacity * rng.uniform(3.0, 7.0))
+        expected_price = venue.default_ticket_price or fallback_price or Decimal("100.00")
+        demand = FanDemand.objects.create(
+            artist=artist,
+            venue=venue,
+            fan_count=fan_count,
+            engagement_score=Decimal("0.10"),
+            expected_ticket_price=expected_price,
+        )
+        existing[venue.id] = demand
+        created.append(demand)
+    return list(existing.values()), created
 
 def apply_schedule_to_tour(artist, tour, schedule, conflict_strategy, user):
     conflicts = []
@@ -65,6 +93,10 @@ def apply_schedule_to_tour(artist, tour, schedule, conflict_strategy, user):
                 demand = FanDemand.objects.filter(artist=artist, venue_id=venue_id).first()
                 if demand and demand.expected_ticket_price is not None:
                     existing.ticket_price = demand.expected_ticket_price
+                else:
+                    venue_default = Venue.objects.filter(id=venue_id).values_list('default_ticket_price', flat=True).first()
+                    fallback_price = TourDate.objects.filter(artist=artist).order_by('-date').values_list('ticket_price', flat=True).first()
+                    existing.ticket_price = venue_default or fallback_price or 0
                 existing.save()
                 overwritten.append(existing.id)
                 continue
@@ -76,8 +108,9 @@ def apply_schedule_to_tour(artist, tour, schedule, conflict_strategy, user):
         if demand and demand.expected_ticket_price is not None:
             ticket_price = demand.expected_ticket_price
         else:
+            venue_default = Venue.objects.filter(id=venue_id).values_list('default_ticket_price', flat=True).first()
             fallback_price = TourDate.objects.filter(artist=artist).order_by('-date').values_list('ticket_price', flat=True).first()
-            ticket_price = fallback_price or 0
+            ticket_price = venue_default or fallback_price or 0
 
         created_tour = TourDate.objects.create(
             artist=artist,
@@ -166,6 +199,13 @@ class TourPlanViewSet(viewsets.ModelViewSet):
         if artist.owner_id != self.request.user.id:
             raise PermissionDenied("Only the artist owner can create plans.")
         serializer.save(created_by=self.request.user)
+
+class OptimizationRunViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = OptimizationRunSerializer
+    permission_classes = [IsAuthenticated, IsArtistOwner]
+
+    def get_queryset(self):
+        return OptimizationRun.objects.filter(plan__artist__owner=self.request.user).order_by('-created_at')
 
 class FanDemandViewSet(viewsets.ModelViewSet):
     queryset = FanDemand.objects.all()
@@ -280,6 +320,8 @@ class TourOptimizationView(APIView):
         distance_weight = data['distance_weight']
         revenue_weight = data['revenue_weight']
         use_ai = data['use_ai']
+        use_ai_selection = data.get('use_ai_selection', False)
+        max_venues = data.get('max_venues')
         start_date = data.get('start_date')
         min_gap_days = data.get('min_gap_days', 0)
         travel_speed_km_per_day = data.get('travel_speed_km_per_day')
@@ -300,9 +342,9 @@ class TourOptimizationView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        fan_demands = FanDemand.objects.filter(artist_id=artist_id, venue_id__in=venue_ids)
         fallback_price = TourDate.objects.filter(artist_id=artist_id).order_by('-date').values_list('ticket_price', flat=True).first()
-        revenue_by_venue = estimate_revenue_by_venue(fan_demands, fallback_price)
+        fan_demands, _created_demands = ensure_fan_demands(artist, venues, fallback_price)
+        revenue_by_venue = estimate_revenue_by_venue(fan_demands, fallback_price, venues_by_id)
         if not start_venue_id and start_city:
             city_matches = [v for v in venues if v.city and v.city.lower().startswith(start_city.lower())]
             if not city_matches:
@@ -316,6 +358,25 @@ class TourOptimizationView(APIView):
                 revenue_by_venue = ai_adjust_revenue(revenue_by_venue, venues_by_id)
             except Exception:
                 pass
+
+        selection_strategy = None
+        ai_rationale = None
+        ai_error = None
+        if max_venues and len(venue_ids) > max_venues:
+            selection_strategy = "heuristic"
+            if use_ai_selection:
+                ai_selected = ai_select_venues(venue_ids, venues_by_id, revenue_by_venue, max_venues, start_city, start_venue_id)
+                if ai_selected:
+                    ai_rationale = ai_selected.get("rationale")
+                    ai_error = ai_selected.get("error_detail") or ai_selected.get("error")
+                    if ai_selected.get("venue_ids"):
+                        venue_ids = ai_selected["venue_ids"]
+                        selection_strategy = "ai"
+            if selection_strategy != "ai":
+                venue_ids = select_venue_subset(venue_ids, venues_by_id, revenue_by_venue, max_venues, start_venue_id, start_city)
+
+            venues = list(Venue.objects.filter(id__in=venue_ids))
+            venues_by_id = {v.id: v for v in venues}
 
         baseline_route = venue_ids[:]
         if start_venue_id and start_venue_id in venue_ids:
@@ -350,6 +411,10 @@ class TourOptimizationView(APIView):
             'artist_id': artist_id,
             'baseline_route': baseline_route,
             'optimized_route': optimized_route,
+            'selected_venue_ids': venue_ids,
+            'selection_strategy': selection_strategy,
+            'selection_rationale': ai_rationale,
+            'selection_error': ai_error,
             'metrics': {
                 'baseline_distance_km': baseline_distance,
                 'optimized_distance_km': optimized_distance,
@@ -380,6 +445,8 @@ class PlanOptimizationRunView(APIView):
             'start_city': plan.start_city,
             'start_venue_id': plan.constraints.get('start_venue_id'),
             'use_ai': True,
+            'use_ai_selection': plan.constraints.get('use_ai_selection', False),
+            'max_venues': plan.constraints.get('max_venues'),
             'cost_per_km': plan.constraints.get('cost_per_km', '2.00'),
             'distance_weight': plan.constraints.get('distance_weight', '1.0'),
             'revenue_weight': plan.constraints.get('revenue_weight', '1.0'),
@@ -412,15 +479,36 @@ class PlanOptimizationRunView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        fan_demands = FanDemand.objects.filter(artist_id=artist_id, venue_id__in=venue_ids)
         fallback_price = TourDate.objects.filter(artist_id=artist_id).order_by('-date').values_list('ticket_price', flat=True).first()
-        revenue_by_venue = estimate_revenue_by_venue(fan_demands, fallback_price)
+        fan_demands, _created_demands = ensure_fan_demands(plan.artist, venues, fallback_price)
+        revenue_by_venue = estimate_revenue_by_venue(fan_demands, fallback_price, venues_by_id)
 
         if data.get('use_ai'):
             try:
                 revenue_by_venue = ai_adjust_revenue(revenue_by_venue, venues_by_id)
             except Exception:
                 pass
+
+        selection_strategy = None
+        ai_rationale = None
+        ai_error = None
+        max_venues = data.get('max_venues')
+        use_ai_selection = data.get('use_ai_selection', False)
+        if max_venues and len(venue_ids) > max_venues:
+            selection_strategy = "heuristic"
+            if use_ai_selection:
+                ai_selected = ai_select_venues(venue_ids, venues_by_id, revenue_by_venue, max_venues, data.get('start_city'), data.get('start_venue_id'))
+                if ai_selected:
+                    ai_rationale = ai_selected.get("rationale")
+                    ai_error = ai_selected.get("error_detail") or ai_selected.get("error")
+                    if ai_selected.get("venue_ids"):
+                        venue_ids = ai_selected["venue_ids"]
+                        selection_strategy = "ai"
+            if selection_strategy != "ai":
+                venue_ids = select_venue_subset(venue_ids, venues_by_id, revenue_by_venue, max_venues, data.get('start_venue_id'), data.get('start_city'))
+
+            venues = list(Venue.objects.filter(id__in=venue_ids))
+            venues_by_id = {v.id: v for v in venues}
 
         start_venue_id = data.get('start_venue_id')
         if not start_venue_id and data.get('start_city'):
@@ -459,7 +547,11 @@ class PlanOptimizationRunView(APIView):
 
         expected_attendance = 0.0
         for demand in fan_demands:
-            expected_attendance += float(Decimal(demand.fan_count) * Decimal(demand.engagement_score))
+            venue = venues_by_id.get(demand.venue_id)
+            demand_attendance = Decimal(demand.fan_count) * Decimal(demand.engagement_score)
+            if venue and venue.capacity:
+                demand_attendance = min(demand_attendance, Decimal(venue.capacity))
+            expected_attendance += float(demand_attendance)
 
         warnings = []
         targets = plan.targets or {}
@@ -477,6 +569,10 @@ class PlanOptimizationRunView(APIView):
             'artist_id': artist_id,
             'baseline_route': baseline_route,
             'optimized_route': optimized_route,
+            'selected_venue_ids': venue_ids,
+            'selection_strategy': selection_strategy,
+            'selection_rationale': ai_rationale,
+            'selection_error': ai_error,
             'metrics': {
                 'baseline_distance_km': baseline_distance,
                 'optimized_distance_km': optimized_distance,

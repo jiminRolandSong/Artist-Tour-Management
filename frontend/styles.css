@@ -158,6 +158,49 @@ a {
   color: #6b7280;
 }
 
+.modal.hidden {
+  display: none;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 12, 16, 0.6);
+}
+
+.modal-card {
+  position: relative;
+  max-width: 640px;
+  margin: 8vh auto;
+  background: #fff;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+  z-index: 1;
+}
+
+.modal-close {
+  float: right;
+}
+
+.modal-body {
+  margin-top: 16px;
+}
+
+.map-shell {
+  height: 320px;
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
 .panel {
   background: linear-gradient(135deg, rgba(31, 122, 99, 0.12), rgba(255, 179, 71, 0.2));
   border-radius: 26px;

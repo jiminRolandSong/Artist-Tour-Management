@@ -1,0 +1,183 @@
+/* =============================================================================
+   BASE STYLES
+   Variables, reset, typography
+============================================================================= */
+
+:root {
+  /* Colors */
+  --ink: #0f1115;
+  --ink-soft: #1f2430;
+  --ink-muted: #4a5363;
+  --mist: #e7e1d8;
+  --sand: #f4efe7;
+  --white: #ffffff;
+
+  /* Brand colors */
+  --copper: #c26b2b;
+  --copper-light: #d4844a;
+  --jade: #1f7a63;
+  --jade-light: #2a9b7d;
+  --sun: #ffb347;
+  --ocean: #2a6f97;
+
+  /* Status colors */
+  --success: #1f7a63;
+  --error: #c0392b;
+  --warning: #f39c12;
+
+  /* Shadows */
+  --shadow-sm: 0 4px 12px rgba(15, 17, 21, 0.08);
+  --shadow-md: 0 12px 32px rgba(15, 17, 21, 0.12);
+  --shadow-lg: 0 20px 60px rgba(15, 17, 21, 0.25);
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* Border radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.4s ease;
+}
+
+/* Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Base */
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at top, #fff7e6, #f0f4f8 55%, #e9eef5 100%);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+h1 {
+  font-family: "Fraunces", "Georgia", serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+h2 {
+  font-family: "Fraunces", "Georgia", serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+h3 {
+  font-size: 1.25rem;
+}
+
+h4 {
+  font-size: 1.1rem;
+}
+
+p {
+  color: var(--ink-muted);
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--copper);
+}
+
+/* Utility classes */
+.muted {
+  color: var(--ink-muted);
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.text-error {
+  color: var(--error);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Container */
+.container {
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+}
+
+/* Animations */
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

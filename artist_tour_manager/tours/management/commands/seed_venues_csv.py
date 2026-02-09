@@ -13,11 +13,13 @@ class Command(BaseCommand):
         parser.add_argument("--file", required=True, help="Path to the CSV file.")
         parser.add_argument("--default-capacity", type=int, default=10000, help="Default venue capacity.")
         parser.add_argument("--operating-cost", type=str, default="30000.00", help="Default operating cost.")
+        parser.add_argument("--default-ticket-price", type=str, default="120.00", help="Default ticket price.")
 
     def handle(self, *args, **options):
         path = options["file"]
         default_capacity = options["default_capacity"]
         operating_cost = Decimal(options["operating_cost"])
+        default_ticket_price = Decimal(options["default_ticket_price"])
 
         created = 0
         updated = 0
@@ -48,6 +50,7 @@ class Command(BaseCommand):
                         "latitude": Decimal(str(lat)) if lat else None,
                         "longitude": Decimal(str(lon)) if lon else None,
                         "operating_cost": operating_cost,
+                        "default_ticket_price": default_ticket_price,
                     },
                 )
 
@@ -62,6 +65,9 @@ class Command(BaseCommand):
                     changed = True
                 if venue.operating_cost is None:
                     venue.operating_cost = operating_cost
+                    changed = True
+                if venue.default_ticket_price is None:
+                    venue.default_ticket_price = default_ticket_price
                     changed = True
                 if venue.capacity is None:
                     venue.capacity = default_capacity

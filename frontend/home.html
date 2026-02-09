@@ -7,71 +7,125 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <link rel="stylesheet" href="css/base.css?v=20260208" />
+    <link rel="stylesheet" href="css/components.css?v=20260208" />
+    <link rel="stylesheet" href="css/layout.css?v=20260208" />
   </head>
   <body>
     <div class="container">
+      <!-- Navigation -->
       <nav class="nav">
         <div class="brand">
           <div class="brand-mark"></div>
           <span>Tour Dashboard</span>
         </div>
+        <button class="mobile-menu-btn" id="mobile-menu-btn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
         <div class="nav-links">
           <a href="home.html">Home</a>
-          <button id="logout" class="btn btn-secondary" style="padding: 8px 14px;">Logout</button>
+          <button id="logout" class="btn btn-secondary">Logout</button>
         </div>
       </nav>
 
-      <section class="home-layout">
-        <aside class="sidebar">
-          <a href="home.html">Home</a>
-          <a href="artists.html">My Artists</a>
-          <a href="tour-groups.html">Tour Groups</a>
-          <a href="tour-dates.html">Tour Dates</a>
-          <a href="optimize.html">AI Optimize</a>
-          <a href="reports.html">Reports</a>
+      <!-- Mobile overlay -->
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+      <!-- App Layout -->
+      <div class="app-layout">
+        <aside class="sidebar" id="sidebar">
+          <nav class="sidebar-nav">
+            <a href="home.html" class="sidebar-link" data-page="home">
+              <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+              Home
+            </a>
+            <a href="artists.html" class="sidebar-link" data-page="artists">
+              <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              My Artists
+            </a>
+            <a href="tour-groups.html" class="sidebar-link" data-page="tour-groups">
+              <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              Tour Groups
+            </a>
+            <a href="tour-dates.html" class="sidebar-link" data-page="tour-dates">
+              <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              Tour Dates
+            </a>
+            <div class="sidebar-divider"></div>
+            <a href="optimize.html" class="sidebar-link" data-page="optimize">
+              <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                <polyline points="2 17 12 22 22 17"/>
+                <polyline points="2 12 12 17 22 12"/>
+              </svg>
+              AI Optimize
+            </a>
+            <a href="reports.html" class="sidebar-link" data-page="reports">
+              <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+              Reports
+            </a>
+          </nav>
         </aside>
 
-        <main class="content-grid">
-          <div class="banner">
-            <h2 class="section-title">Welcome, Manager</h2>
-            <p>Track your roster, optimize routes, and confirm schedules faster.</p>
+        <main class="main-content">
+          <div class="page-header">
+            <h1 class="page-title">Welcome, Manager</h1>
+            <p class="page-subtitle">Track your roster, optimize routes, and confirm schedules faster.</p>
           </div>
 
-          <div class="card fade-in">
-            <h3>Upcoming Tours</h3>
-            <p id="upcoming-summary" class="muted" style="margin-top: 6px;">Loading…</p>
-            <ul id="upcoming-tour-list" class="list"></ul>
-          </div>
+          <div class="content-grid-2">
+            <div class="card fade-in">
+              <h3>Upcoming Tours</h3>
+              <p id="upcoming-summary" class="muted">Loading...</p>
+              <ul id="upcoming-tour-list" class="list"></ul>
+            </div>
 
-          <div id="reports" class="card fade-in">
-            <h3>Tour Insights</h3>
-            <div id="tour-insights" class="muted">Loading insights…</div>
+            <div class="card fade-in">
+              <h3>Tour Insights</h3>
+              <div id="tour-insights" class="muted">Loading insights...</div>
+            </div>
           </div>
 
           <div class="card fade-in">
             <h3>Tour Map</h3>
-            <div id="tour-map"></div>
+            <div id="tour-map" class="map-container"></div>
           </div>
         </main>
-      </section>
+      </div>
     </div>
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
-    ></script>
-    <script src="app.js"></script>
-    <script>
-      window.AppAuth.requireAuth();
-      window.AppAuth.bindLogout();
-      window.AppAuth.loadHomeSummary();
-    </script>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="js/api.js?v=20260208"></script>
+    <script src="js/components.js?v=20260208"></script>
+    <script src="js/map.js?v=20260208"></script>
+    <script src="js/pages/home.js?v=20260208"></script>
+    <script src="js/main.js?v=20260208"></script>
   </body>
 </html>

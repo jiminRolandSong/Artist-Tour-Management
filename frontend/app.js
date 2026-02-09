@@ -42,7 +42,14 @@ async function apiRequest(path, options = {}) {
     throw new Error(message);
   }
 
-  return res.json();
+  if (res.status === 204) {
+    return null;
+  }
+  const text = await res.text();
+  if (!text) {
+    return null;
+  }
+  return JSON.parse(text);
 }
 
 function getQueryParam(name) {
@@ -54,6 +61,9 @@ let mapInstance = null;
 let mapLayer = null;
 let lastRunId = null;
 let lastRunSchedule = [];
+let optimizeVenueById = new Map();
+let optimizeMap = null;
+let optimizeLayers = [];
 
 function parseISODate(value) {
   if (!value) return null;
@@ -134,6 +144,59 @@ function renderMap(tours) {
   }
 }
 
+function renderOptimizeMap(baselineRoute, optimizedRoute) {
+  const mapEl = document.getElementById("opt-map");
+  if (!mapEl || typeof L === "undefined") return;
+
+  if (!optimizeMap) {
+    optimizeMap = L.map("opt-map").setView([20, 0], 2);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(optimizeMap);
+  }
+
+  optimizeLayers.forEach((layer) => optimizeMap.removeLayer(layer));
+  optimizeLayers = [];
+
+  const routeToLatLng = (route) =>
+    route
+      .map((id) => optimizeVenueById.get(Number(id)))
+      .filter((v) => v && v.latitude && v.longitude)
+      .map((v) => [Number(v.latitude), Number(v.longitude), v.name]);
+
+  const baselinePoints = baselineRoute ? routeToLatLng(baselineRoute) : [];
+  const optimizedPoints = optimizedRoute ? routeToLatLng(optimizedRoute) : [];
+
+  const addRoute = (points, color) => {
+    if (!points.length) return;
+    const latlngs = points.map((p) => [p[0], p[1]]);
+    const polyline = L.polyline(latlngs, { color, weight: 3, opacity: 0.85 });
+    polyline.addTo(optimizeMap);
+    optimizeLayers.push(polyline);
+    points.forEach((p, idx) => {
+      const marker = L.circleMarker([p[0], p[1]], {
+        radius: 6,
+        color,
+        weight: 2,
+        fillOpacity: 0.9
+      })
+        .bindPopup(`${idx + 1}. ${p[2]}`)
+        .addTo(optimizeMap);
+      optimizeLayers.push(marker);
+    });
+  };
+
+  addRoute(baselinePoints, "#c0392b");
+  addRoute(optimizedPoints, "#1f7a63");
+
+  const allPoints = [...baselinePoints, ...optimizedPoints];
+  if (allPoints.length) {
+    const bounds = allPoints.map((p) => [p[0], p[1]]);
+    optimizeMap.fitBounds(bounds, { padding: [20, 20] });
+  }
+}
+
 async function loadHomeSummary() {
   const upcomingList = document.getElementById("upcoming-tour-list");
   const summaryEl = document.getElementById("upcoming-summary");
@@ -161,6 +224,9 @@ async function loadHomeSummary() {
 
 async function loadArtistsPage() {
   const artistList = document.getElementById("artist-list");
+  const searchInput = document.getElementById("artist-search");
+  const modal = document.getElementById("artist-modal");
+  const modalContent = document.getElementById("artist-modal-content");
   if (!artistList) return;
 
   try {
@@ -174,23 +240,10 @@ async function loadArtistsPage() {
       apiRequest("/api/tour-groups/")
     ]);
 
-    const artistsById = new Map(artists.map((a) => [a.id, a]));
+    const sortedArtists = [...artists].sort((a, b) => a.name.localeCompare(b.name));
+    const artistsById = new Map(sortedArtists.map((a) => [a.id, a]));
 
-    artistList.innerHTML = artists.length
-      ? artists
-          .map(
-            (a) =>
-              `<li>
-                <button class="btn btn-secondary artist-item" data-id="${a.id}">${a.name}</button>
-                <span class="muted">(${a.genre})</span>
-                <button class="btn btn-secondary" data-action="edit" data-id="${a.id}">Edit</button>
-                <button class="btn btn-secondary" data-action="delete" data-id="${a.id}">Delete</button>
-              </li>`
-          )
-          .join("")
-      : "<li>No artists yet.</li>";
-
-    const showArtist = (artistId) => {
+    function showArtist(artistId) {
       const artist = artistsById.get(artistId);
       if (!artist) return;
 
@@ -212,26 +265,80 @@ async function loadArtistsPage() {
 
       if (artistTours) {
         artistTours.innerHTML = dates.length
-          ? dates.map((t) => `<li>${t.venue.name} — ${t.date}</li>`).join("")
+          ? dates.map((t) => `<li>${t.venue.name} - ${t.date}</li>`).join("")
           : "<li>No tour dates yet.</li>";
       }
-    };
 
-    if (artists[0]) {
-      showArtist(artists[0].id);
+      if (modal && modalContent) {
+        modalContent.innerHTML = `
+          <h3 style="margin-top:0;">${artist.name}</h3>
+          <div class="muted">Genre: ${artist.genre}</div>
+          <h4 style="margin: 18px 0 8px;">Tour Groups</h4>
+          <ul class="list">
+            ${groups.length ? groups.map((g) => `<li>${g.name}</li>`).join("") : "<li>No tour groups yet.</li>"}
+          </ul>
+          <h4 style="margin: 18px 0 8px;">Tour Dates</h4>
+          <ul class="list">
+            ${dates.length ? dates.map((t) => `<li>${t.venue.name} - ${t.date}</li>`).join("") : "<li>No tour dates yet.</li>"}
+          </ul>
+        `;
+        modal.classList.remove("hidden");
+      }
     }
 
-    artistList.querySelectorAll(".artist-item").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        showArtist(Number(btn.dataset.id));
+    const renderArtistList = (list) => {
+      artistList.innerHTML = list.length
+        ? list
+            .map(
+              (a) =>
+                `<li>
+                  <button class="btn btn-secondary artist-item" data-id="${a.id}">${a.name}</button>
+                  <span class="muted">(${a.genre})</span>
+                  <button class="btn btn-secondary" data-action="edit" data-id="${a.id}">Edit</button>
+                  <button class="btn btn-secondary" data-action="delete" data-id="${a.id}">Delete</button>
+                </li>`
+            )
+            .join("")
+        : "<li>No artists yet.</li>";
+
+      artistList.querySelectorAll(".artist-item").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          showArtist(Number(btn.dataset.id));
+        });
       });
-    });
+    };
+
+    renderArtistList(sortedArtists);
+
+    if (sortedArtists[0]) {
+      showArtist(sortedArtists[0].id);
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener("input", () => {
+        const term = searchInput.value.trim().toLowerCase();
+        const filtered = term
+          ? sortedArtists.filter((a) => a.name.toLowerCase().includes(term) || a.genre.toLowerCase().includes(term))
+          : sortedArtists;
+        renderArtistList(filtered);
+      });
+    }
+
+    if (modal) {
+      modal.addEventListener("click", (e) => {
+        const closeTarget = e.target.closest("[data-action='close']");
+        if (closeTarget) {
+          modal.classList.add("hidden");
+        }
+      });
+    }
   } catch (err) {
     artistList.innerHTML = `<li>${err.message}</li>`;
     const artistDetails = document.getElementById("artist-details");
     if (artistDetails) artistDetails.textContent = "Failed to load artist details.";
   }
 }
+
 
 async function loadTourGroupsPage() {
   const tourGroupList = document.getElementById("tour-group-list");
@@ -275,7 +382,7 @@ async function loadTourGroupsPage() {
                 </label>`
             )
             .join("")
-        : "<div class=\"muted\">No venues yet.</div>";
+      : "<div class=\"muted\">No venues yet.</div>";
     }
   } catch (err) {
     tourGroupList.innerHTML = `<li>${err.message}</li>`;
@@ -845,6 +952,8 @@ async function loadOptimizePage() {
     const group = tourGroups.find((g) => g.id === groupId);
     const venues = group && group.venues ? group.venues : [];
 
+    optimizeVenueById = new Map(venues.map((v) => [v.id, v]));
+
     if (startDateInput) {
       startDateInput.value = group && group.start_date ? group.start_date : "";
     }
@@ -885,6 +994,7 @@ function bindOptimizeFlow() {
   const errorEl = document.getElementById("opt-error");
   const resultEl = document.getElementById("plan-result");
   const scheduleEl = document.getElementById("opt-schedule");
+  const compareEl = document.getElementById("opt-compare");
   const confirmBtn = document.getElementById("confirm-run");
   const confirmResult = document.getElementById("confirm-result");
   const confirmTourGroup = document.getElementById("confirm-tour-group");
@@ -970,13 +1080,13 @@ function bindOptimizeFlow() {
           <h4 style="margin-top: 16px;">Edit Schedule</h4>
           <div class="list">
             ${lastRunSchedule
-              .map(
-                (s, idx) =>
-                  `<label style="display:flex;gap:8px;align-items:center;">
-                    <span style="min-width:120px;">Venue ${s.venue_id}</span>
+              .map((s, idx) => {
+                const venueLabel = optimizeVenueById.get(Number(s.venue_id))?.name || `Venue ${s.venue_id}`;
+                return `<label style="display:flex;gap:8px;align-items:center;">
+                    <span style="min-width:180px;">${venueLabel}</span>
                     <input type="date" data-schedule-index="${idx}" value="${s.date}" />
-                  </label>`
-              )
+                  </label>`;
+              })
               .join("")}
           </div>
         `;
@@ -1001,7 +1111,7 @@ function bindOptimizeFlow() {
       }
 
       const editedSchedule = lastRunSchedule.map((s, idx) => {
-        const input = document.querySelector(`[data-schedule-index=\"${idx}\"]`);
+        const input = document.querySelector(`[data-schedule-index="${idx}"]`);
         return {
           venue_id: s.venue_id,
           date: input ? input.value : s.date

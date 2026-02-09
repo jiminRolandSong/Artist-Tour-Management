@@ -17,6 +17,7 @@ class Venue(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     operating_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    default_ticket_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
 
     class Meta:
         unique_together = [['name', 'city']]

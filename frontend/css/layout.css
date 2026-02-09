@@ -1,0 +1,350 @@
+/* =============================================================================
+   LAYOUT STYLES
+   Navigation, sidebar, grids
+============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   Navigation
+----------------------------------------------------------------------------- */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-xl) 0 var(--space-md);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: conic-gradient(from 120deg, var(--copper), var(--sun), var(--ocean));
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-size: 0.95rem;
+}
+
+.nav-links a {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: background var(--transition-fast);
+}
+
+.nav-links a:hover {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* Mobile menu button */
+.mobile-menu-btn {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: var(--space-sm);
+  background: var(--white);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.mobile-menu-btn span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--ink);
+  transition: transform var(--transition-fast);
+}
+
+.mobile-menu-btn.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.mobile-menu-btn.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-btn.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* -----------------------------------------------------------------------------
+   Sidebar Layout
+----------------------------------------------------------------------------- */
+.app-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: var(--space-lg);
+  padding: var(--space-xl) 0 var(--space-2xl);
+  min-height: calc(100vh - 100px);
+}
+
+.sidebar {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-md);
+  height: fit-content;
+  position: sticky;
+  top: var(--space-lg);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  color: var(--ink-soft);
+  transition: all var(--transition-fast);
+}
+
+.sidebar-link:hover {
+  background: var(--sand);
+  color: var(--ink);
+}
+
+.sidebar-link.active {
+  background: var(--copper);
+  color: var(--white);
+}
+
+.sidebar-link.active:hover {
+  background: var(--copper-light);
+  color: var(--white);
+}
+
+.sidebar-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
+}
+
+.sidebar-link.active .sidebar-icon {
+  opacity: 1;
+}
+
+/* Sidebar section divider */
+.sidebar-divider {
+  height: 1px;
+  background: var(--mist);
+  margin: var(--space-md) 0;
+}
+
+/* -----------------------------------------------------------------------------
+   Main Content Area
+----------------------------------------------------------------------------- */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.content-grid {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.content-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-lg);
+}
+
+/* Page header */
+.page-header {
+  margin-bottom: var(--space-lg);
+}
+
+.page-title {
+  margin: 0 0 var(--space-sm);
+}
+
+.page-subtitle {
+  color: var(--ink-muted);
+  margin: 0;
+}
+
+/* -----------------------------------------------------------------------------
+   Hero Section (Landing page)
+----------------------------------------------------------------------------- */
+.hero {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-2xl);
+  align-items: center;
+  padding: var(--space-2xl) 0 var(--space-2xl);
+}
+
+.hero h1 {
+  margin: 0 0 var(--space-md);
+}
+
+.hero p {
+  font-size: 1.1rem;
+  margin: 0 0 var(--space-lg);
+}
+
+.hero-actions {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+/* -----------------------------------------------------------------------------
+   Feature Grid
+----------------------------------------------------------------------------- */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-lg);
+}
+
+/* -----------------------------------------------------------------------------
+   Login / Auth Box
+----------------------------------------------------------------------------- */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+
+.auth-box {
+  width: min(420px, 100%);
+  background: var(--white);
+  padding: var(--space-xl);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-box h2 {
+  margin: 0 0 var(--space-sm);
+}
+
+.auth-box > p {
+  margin: 0 0 var(--space-lg);
+}
+
+.auth-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--mist);
+}
+
+.auth-demo {
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  background: var(--sand);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  color: var(--ink-muted);
+}
+
+/* -----------------------------------------------------------------------------
+   Responsive
+----------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    border-radius: 0;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+  }
+
+  .sidebar-overlay.visible {
+    display: block;
+  }
+
+  .nav-links a:not(.btn) {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .hero {
+    text-align: center;
+  }
+
+  .hero-actions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    width: 95vw;
+  }
+
+  .card {
+    padding: var(--space-md);
+  }
+
+  .auth-box {
+    padding: var(--space-lg);
+  }
+
+  .toast-container {
+    left: var(--space-md);
+    right: var(--space-md);
+    max-width: none;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   Sections
+----------------------------------------------------------------------------- */
+.section {
+  padding: var(--space-2xl) 0;
+}
+
+.section-title {
+  margin: 0 0 var(--space-lg);
+}

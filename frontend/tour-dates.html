@@ -7,83 +7,209 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="css/base.css?v=20260208" />
+    <link rel="stylesheet" href="css/components.css?v=20260208" />
+    <link rel="stylesheet" href="css/layout.css?v=20260208" />
   </head>
   <body>
     <div class="container">
+      <!-- Navigation -->
       <nav class="nav">
         <div class="brand">
           <div class="brand-mark"></div>
           <span>Tour Dates</span>
         </div>
+        <button class="mobile-menu-btn" id="mobile-menu-btn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
         <div class="nav-links">
           <a href="home.html">Home</a>
-          <button id="logout" class="btn btn-secondary" style="padding: 8px 14px;">Logout</button>
+          <button id="logout" class="btn btn-secondary">Logout</button>
         </div>
       </nav>
 
-      <section class="home-layout">
-        <aside class="sidebar">
-          <a href="home.html">Home</a>
-          <a href="artists.html">My Artists</a>
-          <a href="tour-groups.html">Tour Groups</a>
-          <a href="tour-dates.html">Tour Dates</a>
-          <a href="optimize.html">AI Optimize</a>
-          <a href="reports.html">Reports</a>
+      <!-- Mobile overlay -->
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+      <!-- App Layout -->
+      <div class="app-layout">
+        <aside class="sidebar" id="sidebar">
+          <nav class="sidebar-nav">
+            <a href="home.html" class="sidebar-link" data-page="home">
+              <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+              Home
+            </a>
+            <a href="artists.html" class="sidebar-link" data-page="artists">
+              <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              My Artists
+            </a>
+            <a href="tour-groups.html" class="sidebar-link" data-page="tour-groups">
+              <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              Tour Groups
+            </a>
+            <a href="tour-dates.html" class="sidebar-link" data-page="tour-dates">
+              <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              Tour Dates
+            </a>
+            <div class="sidebar-divider"></div>
+            <a href="optimize.html" class="sidebar-link" data-page="optimize">
+              <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                <polyline points="2 17 12 22 22 17"/>
+                <polyline points="2 12 12 17 22 12"/>
+              </svg>
+              AI Optimize
+            </a>
+            <a href="reports.html" class="sidebar-link" data-page="reports">
+              <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+              Reports
+            </a>
+          </nav>
         </aside>
 
-        <main class="content-grid">
-          <div id="tour-dates" class="card fade-in">
-            <h3>Tour Dates</h3>
-            <h4 style="margin: 12px 0 8px;">Upcoming dates</h4>
-            <ul id="tour-list" class="list"></ul>
-            <h4 style="margin: 18px 0 8px;">Past dates</h4>
-            <ul id="past-tour-list" class="list muted"></ul>
-            <div style="display:flex; align-items:center; gap:10px; margin: 18px 0 8px;">
-              <h4 style="margin:0;">Archived dates</h4>
-              <button id="toggle-archived" class="btn btn-secondary" type="button">Show</button>
-            </div>
-            <ul id="archived-tour-list" class="list muted" style="display:none;"></ul>
+        <main class="main-content">
+          <div class="page-header">
+            <h1 class="page-title">Tour Dates</h1>
+            <p class="page-subtitle">Manage your scheduled performances</p>
           </div>
 
+          <!-- View Toggle and Filters -->
           <div class="card fade-in">
-            <h3>Create Tour Date</h3>
-            <form id="tour-form" style="margin-top: 12px;">
-              <div class="input-group">
-                <label for="tour-artist">Artist</label>
-                <select id="tour-artist" style="padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.12);"></select>
+            <div class="toolbar">
+              <div class="view-toggle">
+                <button id="view-list" class="btn btn-secondary active" type="button">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="8" y1="6" x2="21" y2="6"/>
+                    <line x1="8" y1="12" x2="21" y2="12"/>
+                    <line x1="8" y1="18" x2="21" y2="18"/>
+                    <line x1="3" y1="6" x2="3.01" y2="6"/>
+                    <line x1="3" y1="12" x2="3.01" y2="12"/>
+                    <line x1="3" y1="18" x2="3.01" y2="18"/>
+                  </svg>
+                  List
+                </button>
+                <button id="view-calendar" class="btn btn-secondary" type="button">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  Calendar
+                </button>
               </div>
-              <div class="input-group">
-                <label for="tour-group">Tour group</label>
-                <select id="tour-group" style="padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.12);"></select>
+              <div class="filter-group">
+                <label for="filter-artist">Filter by Artist:</label>
+                <select id="filter-artist">
+                  <option value="">All Artists</option>
+                </select>
               </div>
-              <div class="input-group">
-                <label for="tour-venue">Venue</label>
-                <select id="tour-venue" style="padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.12);"></select>
+            </div>
+          </div>
+
+          <!-- Calendar View -->
+          <div id="calendar-view" class="card fade-in hidden">
+            <div class="calendar-header">
+              <button id="cal-prev" class="btn btn-secondary btn-sm" type="button">&larr; Prev</button>
+              <h3 id="cal-month-year">January 2026</h3>
+              <button id="cal-next" class="btn btn-secondary btn-sm" type="button">Next &rarr;</button>
+            </div>
+            <div class="calendar-grid">
+              <div class="calendar-weekdays">
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
               </div>
-              <div class="input-group">
-                <label for="tour-date">Date</label>
-                <input id="tour-date" type="date" />
+              <div id="calendar-days" class="calendar-days"></div>
+            </div>
+            <div id="calendar-selected-date" class="calendar-selected-info hidden">
+              <h4 id="selected-date-title">Events on January 1, 2026</h4>
+              <ul id="selected-date-events" class="list"></ul>
+            </div>
+          </div>
+
+          <!-- List View -->
+          <div id="list-view" class="content-grid-2">
+            <div class="card fade-in">
+              <h3>Upcoming Dates</h3>
+              <ul id="tour-list" class="list"></ul>
+
+              <h4 class="section-heading">Past Dates</h4>
+              <ul id="past-tour-list" class="list muted"></ul>
+
+              <div class="section-heading-row">
+                <h4>Archived Dates</h4>
+                <button id="toggle-archived" class="btn btn-secondary btn-sm" type="button">Show</button>
               </div>
-              <div class="input-group">
-                <label for="tour-price">Ticket price</label>
-                <input id="tour-price" type="number" step="0.01" placeholder="150.00" />
-              </div>
-              <p id="tour-error" style="color: #c0392b; min-height: 20px;"></p>
-              <p id="tour-success" style="color: #1f7a63; min-height: 20px;"></p>
-              <button class="btn btn-primary" type="submit">Create tour date</button>
-            </form>
+              <ul id="archived-tour-list" class="list muted hidden"></ul>
+            </div>
+
+            <div class="card fade-in">
+              <h3>Create Tour Date</h3>
+              <form id="tour-form">
+                <div class="input-group">
+                  <label for="tour-artist">Artist</label>
+                  <select id="tour-artist"></select>
+                </div>
+                <div class="input-group">
+                  <label for="tour-group">Tour group</label>
+                  <select id="tour-group"></select>
+                </div>
+                <div class="input-group">
+                  <label for="tour-venue">Venue</label>
+                  <select id="tour-venue"></select>
+                </div>
+                <div class="input-group">
+                  <label for="tour-date">Date</label>
+                  <input id="tour-date" type="date" />
+                </div>
+                <div class="input-group">
+                  <label for="tour-price">Ticket price</label>
+                  <input id="tour-price" type="number" step="0.01" placeholder="150.00" />
+                </div>
+                <p id="tour-error" class="text-error"></p>
+                <p id="tour-success" class="text-success"></p>
+                <button class="btn btn-primary" type="submit">Create tour date</button>
+              </form>
+            </div>
           </div>
         </main>
-      </section>
+      </div>
     </div>
-    <script src="app.js"></script>
-    <script>
-      window.AppAuth.requireAuth();
-      window.AppAuth.bindLogout();
-      window.AppAuth.loadTourDatesPage();
-      window.AppAuth.bindTourForm();
-      window.AppAuth.bindTourDateActions();
-    </script>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/api.js?v=20260208"></script>
+    <script src="js/components.js?v=20260208"></script>
+    <script src="js/pages/tour-dates.js?v=20260208"></script>
+    <script src="js/main.js?v=20260208"></script>
   </body>
 </html>

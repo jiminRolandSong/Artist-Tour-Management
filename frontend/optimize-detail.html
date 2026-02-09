@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Optimization Details | Artist Tour Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <link rel="stylesheet" href="css/base.css?v=20260208" />
+    <link rel="stylesheet" href="css/components.css?v=20260208" />
+    <link rel="stylesheet" href="css/layout.css?v=20260208" />
+  </head>
+  <body>
+    <div class="container">
+      <nav class="nav">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <span>Optimization Details</span>
+        </div>
+        <button class="mobile-menu-btn" id="mobile-menu-btn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="nav-links">
+          <a href="optimize.html">Back to Optimize</a>
+          <button id="logout" class="btn btn-secondary">Logout</button>
+        </div>
+      </nav>
+
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+      <div class="app-layout">
+        <aside class="sidebar" id="sidebar">
+          <nav class="sidebar-nav">
+            <a href="home.html" class="sidebar-link" data-page="home">Home</a>
+            <a href="artists.html" class="sidebar-link" data-page="artists">My Artists</a>
+            <a href="tour-groups.html" class="sidebar-link" data-page="tour-groups">Tour Groups</a>
+            <a href="tour-dates.html" class="sidebar-link" data-page="tour-dates">Tour Dates</a>
+            <div class="sidebar-divider"></div>
+            <a href="optimize.html" class="sidebar-link" data-page="optimize">AI Optimize</a>
+            <a href="reports.html" class="sidebar-link" data-page="reports">Reports</a>
+          </nav>
+        </aside>
+
+        <main class="main-content">
+          <div class="page-header">
+            <h1 class="page-title">Optimization Details</h1>
+            <p class="page-subtitle">Breakdown of costs, revenue, and route assumptions</p>
+          </div>
+
+          <div class="content-grid-2">
+            <div class="card fade-in">
+              <h3>Summary</h3>
+              <div id="opt-detail-summary" class="stats-grid"></div>
+              <div id="opt-detail-formula" class="muted" style="margin-top: var(--space-md);"></div>
+            </div>
+
+            <div class="card fade-in">
+              <h3>Route Map</h3>
+              <div id="opt-detail-map" class="map-container"></div>
+            </div>
+
+            <div class="card fade-in" style="grid-column: 1 / -1;">
+              <h3>Cost & Revenue Breakdown</h3>
+              <div id="opt-detail-table"></div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="js/api.js?v=20260208"></script>
+    <script src="js/components.js?v=20260208"></script>
+    <script src="js/map.js?v=20260208"></script>
+    <script src="js/pages/optimize-detail.js?v=20260208"></script>
+    <script src="js/main.js?v=20260208"></script>
+  </body>
+</html>

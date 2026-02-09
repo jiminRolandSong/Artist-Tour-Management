@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from django.urls import path, include
-from .views import ArtistViewSet, VenueViewSet, FanDemandViewSet, TourDateViewSet, RegisterView, TourExportView, TourOptimizationView, TourOptimizationConfirmView, TourViewSet, TourPlanViewSet, PlanOptimizationRunView, OptimizationRunConfirmView
+from .views import ArtistViewSet, VenueViewSet, FanDemandViewSet, TourDateViewSet, RegisterView, TourExportView, TourOptimizationView, TourOptimizationConfirmView, TourViewSet, TourPlanViewSet, PlanOptimizationRunView, OptimizationRunConfirmView, OptimizationRunViewSet
 
 router = DefaultRouter()
 router.register(r'artists', ArtistViewSet)
@@ -9,6 +9,7 @@ router.register(r'fan-demand', FanDemandViewSet)
 router.register(r'tour-groups', TourViewSet)
 router.register(r'plans', TourPlanViewSet)
 router.register(r'tours', TourDateViewSet)
+router.register(r'runs', OptimizationRunViewSet, basename='optimization-run')
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),

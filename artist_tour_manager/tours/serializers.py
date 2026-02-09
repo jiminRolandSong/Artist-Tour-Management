@@ -104,6 +104,8 @@ class OptimizationRequestSerializer(serializers.Serializer):
     start_venue_id = serializers.IntegerField(required=False)
     start_city = serializers.CharField(required=False, allow_blank=False)
     use_ai = serializers.BooleanField(default=False)
+    use_ai_selection = serializers.BooleanField(required=False, default=False)
+    max_venues = serializers.IntegerField(required=False, min_value=1, allow_null=True)
     cost_per_km = serializers.DecimalField(max_digits=10, decimal_places=2, default=2.00)
     distance_weight = serializers.DecimalField(max_digits=6, decimal_places=3, default=1.000)
     revenue_weight = serializers.DecimalField(max_digits=6, decimal_places=3, default=1.000)

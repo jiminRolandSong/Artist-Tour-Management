@@ -4,6 +4,8 @@ import os
 from datetime import timedelta
 from decimal import Decimal
 from urllib import request
+from urllib.error import HTTPError, URLError
+from decouple import config
 
 
 def haversine_km(lat1, lon1, lat2, lon2):
@@ -86,13 +88,177 @@ def score_route(route, venues_by_id, revenue_by_venue, cost_per_km, distance_wei
     }
 
 
-def estimate_revenue_by_venue(fan_demands, fallback_ticket_price):
+def estimate_revenue_by_venue(fan_demands, fallback_ticket_price, venues_by_id):
     revenue_by_venue = {}
     for demand in fan_demands:
-        ticket_price = demand.expected_ticket_price or fallback_ticket_price or Decimal('0')
+        venue = venues_by_id.get(demand.venue_id)
+        venue_default = venue.default_ticket_price if venue else None
+        ticket_price = demand.expected_ticket_price or venue_default or fallback_ticket_price or Decimal('0')
         expected_attendance = Decimal(demand.fan_count) * Decimal(demand.engagement_score)
+        if venue and venue.capacity:
+            expected_attendance = min(expected_attendance, Decimal(venue.capacity))
         revenue_by_venue[demand.venue_id] = float(expected_attendance * ticket_price)
     return revenue_by_venue
+
+
+def select_venue_subset(venue_ids, venues_by_id, revenue_by_venue, max_venues, start_venue_id=None, start_city=None):
+    if not max_venues or len(venue_ids) <= max_venues:
+        return venue_ids
+
+    def add_if_valid(vid, selected, selected_set):
+        if vid in selected_set:
+            return
+        selected.append(vid)
+        selected_set.add(vid)
+
+    selected = []
+    selected_set = set()
+
+    if start_venue_id and start_venue_id in venue_ids:
+        add_if_valid(start_venue_id, selected, selected_set)
+
+    if start_city:
+        city_matches = [
+            vid for vid in venue_ids
+            if venues_by_id.get(vid) and venues_by_id[vid].city and venues_by_id[vid].city.lower().startswith(start_city.lower())
+        ]
+        if city_matches:
+            best_city = max(city_matches, key=lambda vid: revenue_by_venue.get(vid, 0))
+            add_if_valid(best_city, selected, selected_set)
+
+    ranked = sorted(
+        venue_ids,
+        key=lambda vid: revenue_by_venue.get(vid, 0),
+        reverse=True,
+    )
+    for vid in ranked:
+        if len(selected) >= max_venues:
+            break
+        add_if_valid(vid, selected, selected_set)
+
+    # Preserve original order for baseline route
+    ordered = [vid for vid in venue_ids if vid in selected_set]
+    return ordered
+
+
+def ai_select_venues(venue_ids, venues_by_id, revenue_by_venue, max_venues, start_city=None, start_venue_id=None):
+    if not max_venues or len(venue_ids) <= max_venues:
+        return None
+
+    venues_payload = []
+    for vid in venue_ids:
+        v = venues_by_id.get(vid)
+        if not v:
+            continue
+        venues_payload.append({
+            "venue_id": vid,
+            "name": v.name,
+            "city": v.city,
+            "latitude": float(v.latitude) if v.latitude is not None else None,
+            "longitude": float(v.longitude) if v.longitude is not None else None,
+            "operating_cost": float(v.operating_cost or 0),
+            "capacity": int(v.capacity or 0),
+            "estimated_revenue": float(revenue_by_venue.get(vid, 0)),
+        })
+
+    system_prompt = (
+        "You are a tour optimization assistant. "
+        "Select a subset of venues that maximizes revenue and minimizes travel cost. "
+        "You must return valid JSON with keys: venue_ids (array of ints) and rationale (non-empty string). "
+        "Return JSON only."
+    )
+    user_prompt = (
+        "Choose up to max_venues venues. Prefer geographic clustering, include start_venue_id if provided. "
+        "Return JSON: {\"venue_ids\": [..], \"rationale\": \"...\"}. Do not omit rationale."
+        f"\nmax_venues: {max_venues}"
+        f"\nstart_city: {start_city}"
+        f"\nstart_venue_id: {start_venue_id}"
+        f"\nVenues: {json.dumps(venues_payload)}"
+    )
+
+    try:
+        result = call_openai_json(system_prompt, user_prompt)
+    except HTTPError as exc:
+        error_detail = None
+        try:
+            error_detail = exc.read().decode('utf-8')
+        except Exception:
+            error_detail = None
+        if exc.code == 429:
+            rationale = "AI selection rate-limited; used heuristic selection."
+        elif exc.code == 401:
+            rationale = "AI selection unauthorized; used heuristic selection."
+        else:
+            rationale = f"AI selection failed (HTTP {exc.code}); used heuristic selection."
+        return {
+            "venue_ids": None,
+            "rationale": rationale,
+            "error": f"HTTP {exc.code}",
+            "error_detail": error_detail or f"HTTP {exc.code}",
+        }
+    except URLError as exc:
+        return {
+            "venue_ids": None,
+            "rationale": "AI selection unavailable; used heuristic selection.",
+            "error": "unavailable",
+            "error_detail": str(exc),
+        }
+    except Exception as exc:
+        return {
+            "venue_ids": None,
+            "rationale": "AI selection failed; used heuristic selection.",
+            "error": "unknown",
+            "error_detail": str(exc),
+        }
+
+    if not result:
+        return {
+            "venue_ids": None,
+            "rationale": "AI selection unavailable; used heuristic selection.",
+            "error": "empty",
+            "error_detail": "empty_response",
+        }
+
+    ids = result.get("venue_ids") or result.get("selected_venue_ids") or result.get("venues")
+    if not isinstance(ids, list):
+        return None
+
+    cleaned = []
+    seen = set()
+    for vid in ids:
+        try:
+            vid_int = int(vid)
+        except (TypeError, ValueError):
+            continue
+        if vid_int in venue_ids and vid_int not in seen:
+            cleaned.append(vid_int)
+            seen.add(vid_int)
+
+    if start_venue_id and start_venue_id in venue_ids and start_venue_id not in seen:
+        cleaned.insert(0, start_venue_id)
+
+    if max_venues:
+        cleaned = cleaned[:max_venues]
+
+    if not cleaned:
+        return {
+            "venue_ids": None,
+            "rationale": "AI selection returned no valid venues; used heuristic selection.",
+            "error": "no-valid-venues",
+            "error_detail": "no_valid_venue_ids",
+        }
+
+    # Preserve original order
+    cleaned_set = set(cleaned)
+    ordered = [vid for vid in venue_ids if vid in cleaned_set]
+    rationale = result.get("rationale")
+    if not isinstance(rationale, str) or not rationale.strip():
+        rationale = "AI venue selection ran, but no rationale was returned."
+
+    return {
+        "venue_ids": ordered,
+        "rationale": rationale,
+    }
 
 
 def filter_venues_by_region(venues, region_filters):
@@ -135,12 +301,12 @@ def filter_venues_by_region(venues, region_filters):
 
 
 def call_openai_json(system_prompt, user_prompt):
-    api_key = os.getenv('OPENAI_API_KEY')
+    api_key = config('OPENAI_API_KEY', default=os.getenv('OPENAI_API_KEY'))
     if not api_key:
         return None
 
     payload = {
-        'model': os.getenv('OPENAI_MODEL', 'gpt-4o-mini'),
+        'model': config('OPENAI_MODEL', default=os.getenv('OPENAI_MODEL', 'gpt-4o-mini')),
         'messages': [
             {'role': 'system', 'content': system_prompt},
             {'role': 'user', 'content': user_prompt},

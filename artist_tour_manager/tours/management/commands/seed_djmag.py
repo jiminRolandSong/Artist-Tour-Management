@@ -113,6 +113,7 @@ class Command(BaseCommand):
                     "latitude": latitude,
                     "longitude": longitude,
                     "operating_cost": Decimal("30000.00"),
+                    "default_ticket_price": Decimal("120.00"),
                 },
             )
 

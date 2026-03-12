@@ -5,7 +5,9 @@
       "Bash(python manage.py test:*)",
       "Bash(tree:*)",
       "Bash(python manage.py:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(xargs cat:*)",
+      "Bash(del \"C:\\\\Users\\\\aanga\\\\Artist Tour Management\\\\write_readme.py\")"
     ]
   }
 }

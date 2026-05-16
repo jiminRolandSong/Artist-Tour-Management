@@ -507,10 +507,10 @@ def render_route_map(baseline_route, optimized_route, venue_by_id):
         pickable=True,
     )
 
-    lats = [p["lat"] for p in all_points]
-    lons = [p["lon"] for p in all_points]
-    center_lat = sum(lats) / len(lats) if lats else 20
-    center_lon = sum(lons) / len(lons) if lons else 0
+    first_id = (optimized_route or baseline_route or [None])[0]
+    first_venue = venue_by_id.get(first_id, {}) if first_id else {}
+    center_lat = parse_float(first_venue.get("latitude")) or 20
+    center_lon = parse_float(first_venue.get("longitude")) or 0
 
     view = pdk.ViewState(latitude=center_lat, longitude=center_lon, zoom=2, pitch=30)
     st.pydeck_chart(pdk.Deck(

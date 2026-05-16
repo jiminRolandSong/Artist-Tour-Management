@@ -1,6 +1,6 @@
 # Artist Tour Management
 
-> **Production-grade tour scheduling API** that combines a Haversine + 2-opt routing engine with GPT-4.1-mini venue intelligence to generate, optimize, and commit artist tour schedules — backed by Django REST Framework, PostgreSQL, and JWT-authenticated ownership isolation.
+> **AI-assisted artist tour scheduling platform** that combines a Haversine + 2-opt routing engine with GPT-4.1-mini venue intelligence to generate, optimize, and commit artist tour schedules — backed by Django REST Framework, PostgreSQL, and JWT-authenticated ownership isolation. Deployed on Railway (API) and Streamlit Cloud (UI).
 
 ![Django](https://img.shields.io/badge/Django-5.2.4-092E20?logo=django)
 ![DRF](https://img.shields.io/badge/DRF-3.16.0-red?logo=django)
@@ -18,7 +18,7 @@
 ## TL;DR
 
 - **What it does:** Artists and managers create tour plans, the optimizer runs Nearest Neighbor + 2-opt TSP heuristics over real GPS coordinates to minimize travel distance, GPT-4.1-mini optionally re-ranks venues and adjusts revenue projections, and the resulting schedule is committed to the database as confirmed tour dates.
-- **Why it matters:** Solving even 20-venue TSP exactly would require evaluating 20! ≈ 2.4 × 10¹⁸ permutations. The 2-opt local-search converges in polynomial time and consistently reduces total route distance by 10–30% vs. the naïve nearest-neighbor baseline — measurable distance reduction is returned in every API response.
+- **Why it matters:** Solving even 20-venue TSP exactly would require evaluating 20! ≈ 2.4 × 10¹⁸ permutations. The 2-opt local-search converges in polynomial time and delivers measurable distance reduction vs. the naïve nearest-neighbor baseline — the exact savings depend on venue geography and are returned in every API response.
 - **Key tech:** Python · Django 5.2.4 · DRF 3.16.0 · PostgreSQL · SimpleJWT 5.5.0 · GPT-4.1-mini · django-filter 25.1 · Streamlit · Pydeck
 - **Live demo:** [jimin-atm.streamlit.app](https://jimin-atm.streamlit.app) — log in, select venues, run optimization, view the route map
 
@@ -184,7 +184,10 @@ Deployment:
 | Config | python-decouple | 3.8 |
 | AI Integration | OpenAI Chat Completions API | gpt-4.1-mini |
 | Routing Algorithm | Custom Python (stdlib only) | — |
-| Frontend | Vanilla HTML/JS/CSS | — |
+| UI Framework | Streamlit | 1.45.0 |
+| Route Map | Pydeck (deck.gl) | 0.9.1 |
+| API Hosting | Railway | — |
+| UI Hosting | Streamlit Cloud | — |
 
 ---
 

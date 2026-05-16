@@ -1,0 +1,1 @@
+web: gunicorn artist_tour_manager.wsgi --log-file -

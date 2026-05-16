@@ -188,14 +188,17 @@ def ai_select_venues(venue_ids, venues_by_id, revenue_by_venue, max_venues, star
         })
 
     system_prompt = (
-        "You are a tour optimization assistant. "
-        "Select a subset of venues that maximizes revenue and minimizes travel cost. "
-        "You must return valid JSON with keys: venue_ids (array of ints) and rationale (non-empty string). "
-        "Return JSON only."
+        "You are a tour routing expert. Select exactly max_venues venues from the list. "
+        "Spread selections across multiple cities and countries to create a geographically diverse tour. "
+        "Do NOT cluster all venues in one city. Balance revenue with travel efficiency across regions. "
+        "You MUST return valid JSON with exactly two keys: venue_ids (array of exactly max_venues ints) and rationale (string). "
+        "Return JSON only, no markdown."
     )
     user_prompt = (
-        "Choose up to max_venues venues. Prefer geographic clustering, include start_venue_id if provided. "
-        "Return JSON: {\"venue_ids\": [..], \"rationale\": \"...\"}. Do not omit rationale."
+        f"Select EXACTLY {max_venues} venues from the list below. "
+        f"You must return exactly {max_venues} venue_ids — not fewer. "
+        "Spread picks across different cities/countries. Include the start venue if provided. "
+        "Return JSON: {\"venue_ids\": [..], \"rationale\": \"...\"}."
         f"\nmax_venues: {max_venues}"
         f"\nstart_city: {start_city}"
         f"\nstart_venue_id: {start_venue_id}"

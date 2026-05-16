@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "cd artist_tour_manager && python manage.py collectstatic --no-input && python manage.py migrate --no-input && gunicorn artist_tour_manager.wsgi --log-file -",
+    "startCommand": "cd /app/artist_tour_manager && python manage.py collectstatic --no-input && python manage.py migrate --no-input && gunicorn artist_tour_manager.wsgi --log-file -",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 3
   }

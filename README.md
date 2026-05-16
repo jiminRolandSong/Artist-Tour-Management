@@ -19,8 +19,8 @@
 
 - **What it does:** Artists and managers create tour plans, the optimizer runs Nearest Neighbor + 2-opt TSP heuristics over real GPS coordinates to minimize travel distance, GPT-4.1-mini optionally re-ranks venues and adjusts revenue projections, and the resulting schedule is committed to the database as confirmed tour dates.
 - **Why it matters:** Solving even 20-venue TSP exactly would require evaluating 20! ≈ 2.4 × 10¹⁸ permutations. The 2-opt local-search converges in polynomial time and consistently reduces total route distance by 10–30% vs. the naïve nearest-neighbor baseline — measurable distance reduction is returned in every API response.
-- **Key tech:** Python · Django 5.2.4 · DRF 3.16.0 · PostgreSQL · SimpleJWT 5.5.0 · GPT-4.1-mini · django-filter 25.1 · Vanilla JS frontend
-- **Demo:** `python manage.py seed_random_data && python manage.py runserver` then `POST /api/plans/<id>/run/`
+- **Key tech:** Python · Django 5.2.4 · DRF 3.16.0 · PostgreSQL · SimpleJWT 5.5.0 · GPT-4.1-mini · django-filter 25.1 · Streamlit · Pydeck
+- **Live demo:** [jimin-atm.streamlit.app](https://jimin-atm.streamlit.app) — log in, select venues, run optimization, view the route map
 
 ---
 

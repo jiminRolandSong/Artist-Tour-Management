@@ -2,6 +2,7 @@ import math
 import os
 from datetime import date, timedelta
 
+import pydeck as pdk
 import requests
 import streamlit as st
 
@@ -448,6 +449,81 @@ def render_venue_filters(venues, key_prefix):
     return filtered_venues
 
 
+def render_route_map(baseline_route, optimized_route, venue_by_id):
+    def route_to_arcs(route, color):
+        arcs = []
+        for from_id, to_id in zip(route, route[1:]):
+            src = venue_by_id.get(from_id, {})
+            tgt = venue_by_id.get(to_id, {})
+            src_lat = parse_float(src.get("latitude"))
+            src_lon = parse_float(src.get("longitude"))
+            tgt_lat = parse_float(tgt.get("latitude"))
+            tgt_lon = parse_float(tgt.get("longitude"))
+            if None in (src_lat, src_lon, tgt_lat, tgt_lon):
+                continue
+            arcs.append({
+                "src_lat": src_lat, "src_lon": src_lon,
+                "tgt_lat": tgt_lat, "tgt_lon": tgt_lon,
+                "src_name": src.get("name", ""), "tgt_name": tgt.get("name", ""),
+                "color": color,
+            })
+        return arcs
+
+    def route_to_points(route, color):
+        points = []
+        for venue_id in route:
+            v = venue_by_id.get(venue_id, {})
+            lat = parse_float(v.get("latitude"))
+            lon = parse_float(v.get("longitude"))
+            if None in (lat, lon):
+                continue
+            points.append({"lat": lat, "lon": lon, "name": v.get("name", ""), "color": color})
+        return points
+
+    baseline_arcs = route_to_arcs(baseline_route, [255, 100, 100, 160])
+    optimized_arcs = route_to_arcs(optimized_route, [100, 220, 255, 200])
+    all_points = route_to_points(list(dict.fromkeys(baseline_route + optimized_route)), [255, 255, 255, 220])
+
+    if not optimized_arcs and not baseline_arcs:
+        st.info("No venue coordinates available to render the map.")
+        return
+
+    arc_layer = pdk.Layer(
+        "ArcLayer",
+        data=baseline_arcs + optimized_arcs,
+        get_source_position=["src_lon", "src_lat"],
+        get_target_position=["tgt_lon", "tgt_lat"],
+        get_source_color="color",
+        get_target_color="color",
+        get_width=2,
+        pickable=True,
+    )
+    scatter_layer = pdk.Layer(
+        "ScatterplotLayer",
+        data=all_points,
+        get_position=["lon", "lat"],
+        get_fill_color="color",
+        get_radius=60000,
+        pickable=True,
+    )
+
+    lats = [p["lat"] for p in all_points]
+    lons = [p["lon"] for p in all_points]
+    center_lat = sum(lats) / len(lats) if lats else 20
+    center_lon = sum(lons) / len(lons) if lons else 0
+
+    view = pdk.ViewState(latitude=center_lat, longitude=center_lon, zoom=2, pitch=30)
+    st.pydeck_chart(pdk.Deck(
+        layers=[arc_layer, scatter_layer],
+        initial_view_state=view,
+        tooltip={"text": "{src_name} → {tgt_name}\n{name}"},
+        map_style="mapbox://styles/mapbox/dark-v10",
+    ))
+    col1, col2 = st.columns(2)
+    col1.markdown("🔴 Baseline route")
+    col2.markdown("🔵 Optimized route")
+
+
 def render_optimize_tab():
     if not require_login():
         return
@@ -547,6 +623,13 @@ def render_optimize_tab():
         return
 
     st.subheader("4. Review Result")
+    if result.get("baseline_route") or result.get("optimized_route"):
+        st.subheader("Route Map")
+        render_route_map(
+            result.get("baseline_route", []),
+            result.get("optimized_route", []),
+            venue_by_id,
+        )
     metrics = result.get("metrics") or {}
     if metrics:
         metric_cols = st.columns(5)
@@ -859,8 +942,16 @@ The revenue estimate starts from fan demand records for the artist and venue. Ti
 init_state()
 render_sidebar()
 
-st.title("Artist Tour Optimizer")
-st.caption("Manager workflow for route optimization, review, and confirmed tour saving.")
+st.title("AI-Assisted Artist Tour Optimization Platform")
+st.markdown(
+    "Optimize multi-city artist tours using deterministic route optimization, "
+    "AI-assisted venue selection, and revenue-aware scheduling."
+)
+col1, col2, col3 = st.columns(3)
+col1.metric("Optimization Engine", "2-opt + NN")
+col2.metric("AI Layer", "GPT-4.1-mini")
+col3.metric("Deployment", "Railway + Streamlit")
+st.divider()
 
 account_tab, optimize_tab, my_tours_tab, venues_tab, methodology_tab = st.tabs(
     ["Account", "Optimize", "My Tours", "Venues", "Methodology"]

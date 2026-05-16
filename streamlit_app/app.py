@@ -1,4 +1,5 @@
 import math
+import os
 from datetime import date, timedelta
 
 import requests
@@ -876,10 +877,6 @@ with my_tours_tab:
 
 with venues_tab:
     render_venues_tab()
-
-with methodology_tab:
-    render_methodology_tab()
-s_tab()
 
 with methodology_tab:
     render_methodology_tab()

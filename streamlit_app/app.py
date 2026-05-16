@@ -23,7 +23,7 @@ st.set_page_config(page_title="Artist Tour Optimizer", layout="wide")
 
 def init_state():
     defaults = {
-        "api_base_url": "http://localhost:8000",
+        "api_base_url": os.environ.get("API_BASE_URL", "http://localhost:8000"),
         "access_token": None,
         "artists": [],
         "venues": [],
@@ -876,6 +876,10 @@ with my_tours_tab:
 
 with venues_tab:
     render_venues_tab()
+
+with methodology_tab:
+    render_methodology_tab()
+s_tab()
 
 with methodology_tab:
     render_methodology_tab()

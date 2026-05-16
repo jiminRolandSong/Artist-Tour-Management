@@ -1,0 +1,5 @@
+[phases.build]
+cmds = ["python manage.py collectstatic --no-input"]
+
+[start]
+cmd = "python manage.py migrate --no-input && gunicorn artist_tour_manager.wsgi --log-file -"

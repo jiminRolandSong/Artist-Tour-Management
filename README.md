@@ -8,6 +8,10 @@
 ![JWT](https://img.shields.io/badge/SimpleJWT-5.5.0-orange)
 ![Python](https://img.shields.io/badge/Python-3.11+-blue?logo=python)
 ![OpenAI](https://img.shields.io/badge/OpenAI-gpt--4.1--mini-412991?logo=openai)
+![Railway](https://img.shields.io/badge/Deployed-Railway-blueviolet?logo=railway)
+![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit)
+
+**Live Demo:** [jimin-atm.streamlit.app](https://jimin-atm.streamlit.app) · **API:** [artist-tour-management-production.up.railway.app](https://artist-tour-management-production.up.railway.app)
 
 ---
 
@@ -17,6 +21,42 @@
 - **Why it matters:** Solving even 20-venue TSP exactly would require evaluating 20! ≈ 2.4 × 10¹⁸ permutations. The 2-opt local-search converges in polynomial time and consistently reduces total route distance by 10–30% vs. the naïve nearest-neighbor baseline — measurable distance reduction is returned in every API response.
 - **Key tech:** Python · Django 5.2.4 · DRF 3.16.0 · PostgreSQL · SimpleJWT 5.5.0 · GPT-4.1-mini · django-filter 25.1 · Vanilla JS frontend
 - **Demo:** `python manage.py seed_random_data && python manage.py runserver` then `POST /api/plans/<id>/run/`
+
+---
+
+## Screenshots
+
+### Route Map — Baseline vs Optimized
+![Route Map](docs/screenshots/route_map.png)
+*Red arcs = baseline (unoptimized) route. Blue arcs = 2-opt optimized route. 75.7% distance reduction across Europe and North America.*
+
+### Optimization Results & AI Rationale
+![Results](docs/screenshots/results.png)
+*AI selection rationale explains geographic venue clustering across Ibiza → Mykonos → Berlin → London → Miami → Las Vegas.*
+
+### Venue Selection & Configuration
+![Configuration](docs/screenshots/configuration.png)
+*Filter venues by country/city, configure max venues, start city, travel speed, and toggle AI layers.*
+
+---
+
+## Streamlit UI
+
+The Streamlit frontend ([jimin-atm.streamlit.app](https://jimin-atm.streamlit.app)) provides a complete manager workflow on top of the Django REST API:
+
+| Tab | What it does |
+|---|---|
+| **Account** | JWT login, user registration, data summary |
+| **Optimize** | Select artist, filter venues by country/city, configure and run optimization, view route map |
+| **My Tours** | Browse saved tour groups and confirmed tour dates |
+| **Venues** | Filter and inspect all venue records |
+| **Methodology** | Formulas and algorithm explanations |
+
+**AI role in the UI:**
+- *Use AI revenue adjustment* — GPT-4.1-mini applies per-venue revenue multipliers (0.5–1.5×) based on city and market context
+- *Use AI venue selection* — GPT-4.1-mini picks a geographically diverse subset when `max_venues < selected venues`; the rationale is shown in the UI
+
+> The routing engine is deterministic and reproducible. AI is used as a decision-support layer for venue selection and revenue adjustment — not as the core optimizer.
 
 ---
 
@@ -36,6 +76,9 @@ Without a system like this, an artist on a 15-city tour might spend 40% of their
 ## Architecture
 
 ```
+Streamlit Cloud (jimin-atm.streamlit.app)
+         |  HTTP + JWT
+         v
 Client (Postman / Browser)
          |
          v
@@ -90,7 +133,7 @@ Client (Postman / Browser)
 +------------------------------------------------------------------+
                             |
                      +------v------+
-                     | PostgreSQL  |
+                     | PostgreSQL  |  ← Railway managed
                      |  Artist     |
                      |  Venue      |
                      |  Tour       |
@@ -99,6 +142,11 @@ Client (Postman / Browser)
                      |  FanDemand  |
                      | OptimizRun  |
                      +-------------+
+
+Deployment:
+  Streamlit Cloud  →  Django REST API (Railway)  →  PostgreSQL (Railway)
+                              ↓
+                       OpenAI API (optional)
 ```
 
 **Request flow for a plan-based optimization:**

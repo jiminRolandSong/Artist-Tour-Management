@@ -26,17 +26,21 @@
 
 ## Screenshots
 
-### Route Map — Baseline vs Optimized
+### 1. Venue Filtering & Artist Selection
+![Configuration 1](docs/screenshots/conf1.png)
+*Filter 73 venues by country and city. Hero section shows tech stack at a glance.*
+
+### 2. Selected Venues & Optimization Settings
+![Configuration 2](docs/screenshots/conf2.png)
+*Selected venue table, start city, max venues, AI toggle controls. AI venue selection will choose 11 of 21 candidates.*
+
+### 3. Route Map — Baseline vs Optimized
 ![Route Map](docs/screenshots/route_map.png)
-*Red arcs = baseline (unoptimized) route. Blue arcs = 2-opt optimized route. 75.7% distance reduction across Europe and North America.*
+*Red arcs = baseline route. Blue arcs = 2-opt optimized route. 75.7% distance reduction (65,841 km → 15,997 km) across Europe and North America.*
 
-### Optimization Results & AI Rationale
+### 4. Optimization Results & AI Rationale
 ![Results](docs/screenshots/results.png)
-*AI selection rationale explains geographic venue clustering across Ibiza → Mykonos → Berlin → London → Miami → Las Vegas.*
-
-### Venue Selection & Configuration
-![Configuration](docs/screenshots/configuration.png)
-*Filter venues by country/city, configure max venues, start city, travel speed, and toggle AI layers.*
+*$5.2M estimated revenue, $4.8M profit, ROI 12.35. AI rationale explains geographic clustering: Ibiza → Mykonos → Berlin → London → Miami → Las Vegas.*
 
 ---
 

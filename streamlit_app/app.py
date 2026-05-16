@@ -517,7 +517,7 @@ def render_route_map(baseline_route, optimized_route, venue_by_id):
         layers=[arc_layer, scatter_layer],
         initial_view_state=view,
         tooltip={"text": "{src_name} → {tgt_name}\n{name}"},
-        map_style="mapbox://styles/mapbox/dark-v10",
+        map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
     ))
     col1, col2 = st.columns(2)
     col1.markdown("🔴 Baseline route")

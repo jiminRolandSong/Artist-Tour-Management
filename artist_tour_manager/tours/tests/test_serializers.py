@@ -6,9 +6,10 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from decimal import Decimal
 from datetime import date, timedelta
+from rest_framework.test import APIRequestFactory
 
 from ..models import Artist, Venue, TourDate, Tour
-from ..serializers import TourDateSerializer, RegisterSerializer
+from ..serializers import TourDateSerializer, TourSerializer, RegisterSerializer
 
 
 class TourDateSerializerValidationTests(TestCase):
@@ -21,8 +22,13 @@ class TourDateSerializerValidationTests(TestCase):
             email='test@test.com',
             password='testpass123'
         )
-        self.artist = Artist.objects.create(name='Serializer Artist 1', genre='Rock')
-        self.artist2 = Artist.objects.create(name='Serializer Artist 2', genre='Rock')
+        self.other_user = User.objects.create_user(
+            username='otheruser',
+            email='other@test.com',
+            password='testpass123'
+        )
+        self.artist = Artist.objects.create(name='Serializer Artist 1', genre='Rock', owner=self.user)
+        self.artist2 = Artist.objects.create(name='Serializer Artist 2', genre='Rock', owner=self.other_user)
         self.venue = Venue.objects.create(name='Serializer Venue 1', city='NYC', capacity=20000)
         self.venue2 = Venue.objects.create(name='Serializer Venue 2', city='LA', capacity=18000)
         self.tour = Tour.objects.create(artist=self.artist, name='Serializer Tour')
@@ -54,6 +60,29 @@ class TourDateSerializerValidationTests(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertIn('non_field_errors', serializer.errors)
+
+    def test_writeable_relationships_are_scoped_to_request_user(self):
+        """Writable artist and tour fields should only accept objects owned by the request user."""
+        request = APIRequestFactory().post('/api/tours/')
+        request.user = self.user
+
+        serializer = TourDateSerializer(context={'request': request})
+
+        self.assertQuerySetEqual(
+            serializer.fields['artist_id'].queryset,
+            [self.artist],
+            transform=lambda artist: artist,
+        )
+        self.assertQuerySetEqual(
+            serializer.fields['tour_id'].queryset,
+            [self.tour],
+            transform=lambda tour: tour,
+        )
+        self.assertQuerySetEqual(
+            serializer.fields['venue_id'].queryset.order_by('id'),
+            [self.venue, self.venue2],
+            transform=lambda venue: venue,
+        )
 
     def test_past_date_rejected(self):
         """Creating a tour in the past should fail."""
@@ -211,3 +240,31 @@ class RegisterSerializerTests(TestCase):
         self.assertNotEqual(user.password, 'mypassword123')
         # But should validate correctly
         self.assertTrue(user.check_password('mypassword123'))
+
+
+class TourSerializerTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tourserializer',
+            email='tourserializer@test.com',
+            password='testpass123',
+        )
+        self.artist = Artist.objects.create(name='Tour Serializer Artist', genre='Pop', owner=self.user)
+        self.venue = Venue.objects.create(name='Tour Serializer Venue', city='Seoul', capacity=10000)
+
+    def test_create_handles_write_only_venue_ids(self):
+        data = {
+            'artist': self.artist.id,
+            'name': 'Serializer Created Tour',
+            'start_date': date.today() + timedelta(days=30),
+            'end_date': date.today() + timedelta(days=35),
+            'description': 'Created through serializer.',
+            'venue_ids': [self.venue.id],
+        }
+        serializer = TourSerializer(data=data)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        tour = serializer.save(created_by=self.user)
+
+        self.assertEqual(tour.venues.count(), 1)
+        self.assertEqual(tour.venues.first(), self.venue)

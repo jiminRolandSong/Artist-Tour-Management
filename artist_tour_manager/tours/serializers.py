@@ -12,6 +12,7 @@ class ArtistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Artist
         fields = '__all__'
+        read_only_fields = ['owner']
 
 class VenueSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,6 +41,15 @@ class TourDateSerializer(serializers.ModelSerializer):
     class Meta:
         model = TourDate
         fields = ['id', 'tour', 'tour_id_read', 'tour_name', 'tour_id', 'artist', 'artist_id', 'venue', 'venue_id', 'date', 'ticket_price', 'is_archived']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get('request')
+        user = getattr(request, 'user', None)
+
+        if user and user.is_authenticated:
+            self.fields['artist_id'].queryset = Artist.objects.filter(owner=user)
+            self.fields['tour_id'].queryset = Tour.objects.filter(artist__owner=user)
     
     # Automatically called whenever someone creates ot updates a TourDate by DRF
     # Avoid sameday booking    
@@ -83,15 +93,38 @@ class TourSerializer(serializers.ModelSerializer):
     venues = VenueSerializer(many=True, read_only=True)
     venue_ids = serializers.ListField(child=serializers.IntegerField(), write_only=True, required=False)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get('request')
+        user = getattr(request, 'user', None)
+
+        if user and user.is_authenticated:
+            self.fields['artist'].queryset = Artist.objects.filter(owner=user)
+
     def validate(self, data):
         start_date = data.get('start_date')
         if start_date and start_date <= dt_date.today():
             raise serializers.ValidationError("Tour start date must be in the future.")
         return data
 
+    def create(self, validated_data):
+        venue_ids = validated_data.pop('venue_ids', [])
+        tour = super().create(validated_data)
+        if venue_ids:
+            tour.venues.set(Venue.objects.filter(id__in=venue_ids))
+        return tour
+
+    def update(self, instance, validated_data):
+        venue_ids = validated_data.pop('venue_ids', None)
+        tour = super().update(instance, validated_data)
+        if venue_ids is not None:
+            tour.venues.set(Venue.objects.filter(id__in=venue_ids))
+        return tour
+
     class Meta:
         model = Tour
         fields = ['id', 'artist', 'artist_name', 'name', 'start_date', 'end_date', 'description', 'venues', 'venue_ids', 'created_by', 'created_at']
+        read_only_fields = ['created_by', 'created_at']
 
 class FanDemandSerializer(serializers.ModelSerializer):
     class Meta:
@@ -137,6 +170,7 @@ class TourPlanSerializer(serializers.ModelSerializer):
             'id', 'artist', 'artist_name', 'name', 'start_date', 'end_date', 'start_city',
             'venue_ids', 'region_filters', 'targets', 'constraints', 'created_by', 'created_at'
         ]
+        read_only_fields = ['created_by', 'created_at']
 
 
 class OptimizationRunSerializer(serializers.ModelSerializer):

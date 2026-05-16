@@ -415,6 +415,11 @@ class TourOptimizationView(APIView):
             'selection_strategy': selection_strategy,
             'selection_rationale': ai_rationale,
             'selection_error': ai_error,
+            'revenue_by_venue': revenue_by_venue,
+            'venue_revenues': [
+                {'venue_id': vid, 'estimated_revenue': revenue_by_venue.get(vid, 0)}
+                for vid in venue_ids
+            ],
             'metrics': {
                 'baseline_distance_km': baseline_distance,
                 'optimized_distance_km': optimized_distance,
@@ -573,6 +578,11 @@ class PlanOptimizationRunView(APIView):
             'selection_strategy': selection_strategy,
             'selection_rationale': ai_rationale,
             'selection_error': ai_error,
+            'revenue_by_venue': revenue_by_venue,
+            'venue_revenues': [
+                {'venue_id': vid, 'estimated_revenue': revenue_by_venue.get(vid, 0)}
+                for vid in venue_ids
+            ],
             'metrics': {
                 'baseline_distance_km': baseline_distance,
                 'optimized_distance_km': optimized_distance,

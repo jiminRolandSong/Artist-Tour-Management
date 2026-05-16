@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from decimal import Decimal
-from datetime import date
+from datetime import date, timedelta
 
 from ..models import Artist, Venue, TourDate, FanDemand, Tour
 
@@ -135,11 +135,12 @@ class OptimizationConfirmAPITests(APITestCase):
     def test_conflict_response_and_overwrite(self):
         """Should detect conflicts and allow overwrite strategy."""
         self.client.force_authenticate(user=self.owner)
+        conflict_date = date.today() + timedelta(days=30)
         TourDate.objects.create(
             artist=self.artist,
             tour=self.tour_group,
             venue=self.venue1,
-            date=date(2026, 2, 15),
+            date=conflict_date,
             ticket_price=Decimal('90.00'),
             created_by=self.owner
         )
@@ -148,7 +149,7 @@ class OptimizationConfirmAPITests(APITestCase):
             'artist_id': self.artist.id,
             'tour_id': self.tour_group.id,
             'schedule': [
-                {'venue_id': self.venue2.id, 'date': '2026-02-15'},
+                {'venue_id': self.venue2.id, 'date': conflict_date.isoformat()},
             ]
         }
         response = self.client.post('/api/optimize/confirm/', payload, format='json')
@@ -158,5 +159,5 @@ class OptimizationConfirmAPITests(APITestCase):
         payload['conflict_strategy'] = 'overwrite'
         response = self.client.post('/api/optimize/confirm/', payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        updated = TourDate.objects.get(artist=self.artist, date=date(2026, 2, 15))
+        updated = TourDate.objects.get(artist=self.artist, date=conflict_date)
         self.assertEqual(updated.venue_id, self.venue2.id)

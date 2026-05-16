@@ -3,9 +3,35 @@ import math
 import os
 from datetime import timedelta
 from decimal import Decimal
+from pathlib import Path
 from urllib import request
 from urllib.error import HTTPError, URLError
 from decouple import config
+
+
+PLACEHOLDER_API_KEYS = {"YOUR_NEW_KEY", "sk-...", "change-me"}
+
+
+def local_env_value(name):
+    env_path = Path(__file__).resolve().parents[1] / ".env"
+    if not env_path.exists():
+        return None
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        if "=" not in line or line.strip().startswith("#"):
+            continue
+        key, value = line.split("=", 1)
+        if key.strip() == name:
+            return value.strip().strip("'\"")
+    return None
+
+
+def openai_config(name, default=None):
+    value = config(name, default=default)
+    if name == "OPENAI_API_KEY" and value in PLACEHOLDER_API_KEYS:
+        env_file_value = local_env_value(name)
+        if env_file_value and env_file_value not in PLACEHOLDER_API_KEYS:
+            return env_file_value
+    return value
 
 
 def haversine_km(lat1, lon1, lat2, lon2):
@@ -301,12 +327,12 @@ def filter_venues_by_region(venues, region_filters):
 
 
 def call_openai_json(system_prompt, user_prompt):
-    api_key = config('OPENAI_API_KEY', default=os.getenv('OPENAI_API_KEY'))
+    api_key = openai_config('OPENAI_API_KEY', default=os.getenv('OPENAI_API_KEY'))
     if not api_key:
         return None
 
     payload = {
-        'model': config('OPENAI_MODEL', default=os.getenv('OPENAI_MODEL', 'gpt-4o-mini')),
+        'model': openai_config('OPENAI_MODEL', default=os.getenv('OPENAI_MODEL', 'gpt-4o-mini')),
         'messages': [
             {'role': 'system', 'content': system_prompt},
             {'role': 'user', 'content': user_prompt},
